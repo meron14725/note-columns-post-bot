@@ -1,0 +1,22 @@
+{
+  "lastUpdated": "2024-12-06T12:00:00+09:00",
+  "statistics": {
+    "daily": {
+      "total": 0,
+      "average_total_score": 0,
+      "high_quality_count": 0
+    },
+    "weekly": {
+      "total": 0,
+      "high_quality_count": 0
+    },
+    "monthly": {
+      "total": 0,
+      "high_quality_count": 0
+    },
+    "allTime": {
+      "total": 0,
+      "max_total_score": 0
+    }
+  }
+}

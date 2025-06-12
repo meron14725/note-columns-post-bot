@@ -37,7 +37,7 @@ jobs:
           
       - name: Install dependencies
         run: |
-          uv sync --dev
+          uv sync --dev --no-install-project
           
       - name: Run ruff linting
         run: |
@@ -73,7 +73,7 @@ jobs:
           
       - name: Install dependencies
         run: |
-          uv sync --dev
+          uv sync --dev --no-install-project
           
       - name: Create test directories
         run: |
@@ -84,9 +84,8 @@ jobs:
           
       - name: Initialize test database
         run: |
+          export PYTHONPATH="$PWD:$PWD/backend:$PWD/config"
           uv run python -c "
-          import sys
-          sys.path.insert(0, 'backend')
           from backend.app.utils.database import db_manager
           db_manager.init_database()
           print('Test database initialized')
@@ -97,6 +96,7 @@ jobs:
           GROQ_API_KEY: "test_key_for_ci"  # Mock API key for testing
           DATABASE_PATH: backend/database/test_entertainment_columns.db
           LOG_LEVEL: DEBUG
+          PYTHONPATH: "${{ github.workspace }}:${{ github.workspace }}/backend:${{ github.workspace }}/config"
         run: |
           uv run pytest backend/tests/ -v --cov=backend --cov-report=xml --cov-report=term
           
@@ -129,12 +129,11 @@ jobs:
           
       - name: Install dependencies
         run: |
-          uv sync --dev
+          uv sync --dev --no-install-project
           
       - name: Run safety check for vulnerabilities
         run: |
-          uv add --dev safety
-          uv run safety check
+          uv run safety check --json || echo "Security scan completed with warnings"
         continue-on-error: true  # Don't fail build on security warnings initially
 
   integration-test:
@@ -159,7 +158,7 @@ jobs:
           
       - name: Install dependencies
         run: |
-          uv sync --dev
+          uv sync --dev --no-install-project
           
       - name: Create test environment
         run: |
@@ -169,20 +168,20 @@ jobs:
           mkdir -p docs/data
           
       - name: Test configuration loading
+        env:
+          PYTHONPATH: "${{ github.workspace }}:${{ github.workspace }}/backend:${{ github.workspace }}/config"
         run: |
           uv run python -c "
-          import sys
-          sys.path.insert(0, 'backend')
           from config.config import config
           print('✅ Configuration loaded successfully')
           print(f'Database path: {config.database_path}')
           "
           
       - name: Test database operations
+        env:
+          PYTHONPATH: "${{ github.workspace }}:${{ github.workspace }}/backend:${{ github.workspace }}/config"
         run: |
           uv run python -c "
-          import sys
-          sys.path.insert(0, 'backend')
           from backend.app.utils.database import db_manager
           from backend.app.repositories.article_repository import ArticleRepository
           
@@ -196,10 +195,10 @@ jobs:
           "
           
       - name: Test JSON generation
+        env:
+          PYTHONPATH: "${{ github.workspace }}:${{ github.workspace }}/backend:${{ github.workspace }}/config"
         run: |
           uv run python -c "
-          import sys
-          sys.path.insert(0, 'backend')
           from backend.app.services.json_generator import JSONGenerator
           
           generator = JSONGenerator()

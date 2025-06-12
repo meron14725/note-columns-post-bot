@@ -1,0 +1,25 @@
+{
+  "lastUpdated": "2024-12-06T12:00:00+09:00",
+  "categories": {
+    "entertainment": {
+      "name": "エンタメ総合",
+      "count": 0,
+      "articles": []
+    },
+    "movie_drama": {
+      "name": "映画・ドラマ",
+      "count": 0,
+      "articles": []
+    },
+    "music": {
+      "name": "音楽",
+      "count": 0,
+      "articles": []
+    },
+    "anime_game": {
+      "name": "アニメ・ゲーム",
+      "count": 0,
+      "articles": []
+    }
+  }
+}

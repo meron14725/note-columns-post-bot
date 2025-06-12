@@ -54,7 +54,7 @@ jobs:
           TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
           DATABASE_PATH: backend/database/entertainment_columns.db
           LOG_LEVEL: INFO
-          GITHUB_PAGES_URL: ${{ vars.GITHUB_PAGES_URL }}
+          GITHUB_PAGES_URL: ${{ vars.PAGES_URL }}
         run: |
           uv run python backend/batch/post_to_twitter.py
           

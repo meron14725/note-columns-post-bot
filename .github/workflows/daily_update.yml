@@ -44,7 +44,7 @@ jobs:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           DATABASE_PATH: backend/database/entertainment_columns.db
           LOG_LEVEL: INFO
-          GITHUB_PAGES_URL: ${{ vars.GITHUB_PAGES_URL }}
+          GITHUB_PAGES_URL: ${{ vars.PAGES_URL }}
           GITHUB_REPO_URL: ${{ github.server_url }}/${{ github.repository }}
         run: |
           uv run python backend/batch/daily_process.py
@@ -83,7 +83,7 @@ jobs:
             "systemInfo": {
               "totalArticles": $(cat docs/data/articles.json | jq '.total // 0' 2>/dev/null || echo '0'),
               "evaluatedArticles": $(cat docs/data/articles.json | jq '.total // 0' 2>/dev/null || echo '0'),
-              "websiteUrl": "${{ vars.GITHUB_PAGES_URL }}",
+              "websiteUrl": "${{ vars.PAGES_URL }}",
               "githubRepo": "${{ github.server_url }}/${{ github.repository }}"
             },
             "buildInfo": {

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI厳選エンタメコラム</title>
+    <meta name="description" content="AIが厳選したnoteのエンタメコラムを毎日お届け。映画、音楽、アニメ、ゲームなど幅広いエンタメ記事を高品質スコアでランキング。">
+    <meta name="keywords" content="エンタメ,コラム,note,AI,評価,映画,音楽,アニメ,ゲーム">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="AI厳選エンタメコラム">
+    <meta property="og:description" content="AIが厳選したnoteのエンタメコラムを毎日お届け">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="AI厳選エンタメコラム">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI厳選エンタメコラム">
+    <meta name="twitter:description" content="AIが厳選したnoteのエンタメコラムを毎日お届け">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiM2MzY2ZjEiLz4KPHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAxOCAxOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4PSI3IiB5PSI3Ij4KPHBhdGggZD0iTTkgMS41QzEzLjE0MjEgMS41IDE2LjUgNC44NTc4NiAxNi41IDlDMTYuNSAxMy4xNDIxIDEzLjE0MjEgMTYuNSA5IDE2LjVDNC44NTc4NiAxNi41IDEuNSAxMy4xNDIxIDEuNSA5QzEuNSA0Ljg1Nzg2IDQuODU3ODYgMS41IDkgMS41WiIgZmlsbD0id2hpdGUiLz4KPHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxMiAxMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4PSIzIiB5PSIzIj4KPHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxMiAxMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTYgMUwxMi4yNjc5IDEwLjI1SDAuNzMyMDUxTDYgMVoiIGZpbGw9IiM2MzY2ZjEiLz4KPC9zdmc+Cjwvc3ZnPgo8L3N2Zz4KPC9zdmc+">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="site-title">
+                    <span class="icon">🤖</span>
+                    AI厳選エンタメコラム
+                </h1>
+                <p class="site-description">
+                    AIが厳選したnoteのエンタメコラムを毎日お届け
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-item">
+                    <span class="status-label">最終更新:</span>
+                    <span class="status-value" id="lastUpdated">読み込み中...</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">評価済み記事:</span>
+                    <span class="status-value" id="totalArticles">-</span>
+                    <span class="status-label">件</span>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <nav class="tab-nav">
+                <button class="tab-button active" data-tab="top5">TODAY's TOP5</button>
+                <button class="tab-button" data-tab="all">全記事</button>
+                <button class="tab-button" data-tab="categories">カテゴリ別</button>
+                <button class="tab-button" data-tab="stats">統計</button>
+            </nav>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- TOP5 Tab -->
+                <div class="tab-panel active" id="top5-panel">
+                    <div class="section-header">
+                        <h2>🏆 TODAY's TOP5</h2>
+                        <p>本日のAI評価最高スコア記事</p>
+                    </div>
+                    <div class="articles-grid" id="top5-articles">
+                        <div class="loading">記事を読み込み中...</div>
+                    </div>
+                </div>
+
+                <!-- All Articles Tab -->
+                <div class="tab-panel" id="all-panel">
+                    <div class="section-header">
+                        <h2>📚 全記事</h2>
+                        <div class="filter-controls">
+                            <select id="sortSelect">
+                                <option value="score">スコア順</option>
+                                <option value="date">日付順</option>
+                            </select>
+                            <input type="number" id="minScoreFilter" placeholder="最低スコア" min="0" max="100">
+                        </div>
+                    </div>
+                    <div class="articles-grid" id="all-articles">
+                        <div class="loading">記事を読み込み中...</div>
+                    </div>
+                    <button class="load-more-btn" id="loadMoreBtn" style="display: none;">さらに読み込む</button>
+                </div>
+
+                <!-- Categories Tab -->
+                <div class="tab-panel" id="categories-panel">
+                    <div class="section-header">
+                        <h2>🎭 カテゴリ別</h2>
+                    </div>
+                    <div class="categories-grid" id="categories-content">
+                        <div class="loading">カテゴリを読み込み中...</div>
+                    </div>
+                </div>
+
+                <!-- Statistics Tab -->
+                <div class="tab-panel" id="stats-panel">
+                    <div class="section-header">
+                        <h2>📊 統計情報</h2>
+                    </div>
+                    <div class="stats-grid" id="stats-content">
+                        <div class="loading">統計を読み込み中...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>このサイトについて</h3>
+                    <p>
+                        note上のエンタメコラムをAIが自動評価し、
+                        高品質な記事を厳選してお届けするサービスです。
+                    </p>
+                </div>
+                <div class="footer-section">
+                    <h3>評価基準</h3>
+                    <ul>
+                        <li>文章の質（構成・読みやすさ）: 40点</li>
+                        <li>内容の独自性: 30点</li>
+                        <li>エンタメ性の高さ: 30点</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>お知らせ</h3>
+                    <p>
+                        最新情報は<a href="#" target="_blank" rel="noopener">X(Twitter)</a>で
+                        毎日更新しています。
+                    </p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 AI厳選エンタメコラム. Powered by Groq AI & GitHub Pages.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+</body>
+</html>

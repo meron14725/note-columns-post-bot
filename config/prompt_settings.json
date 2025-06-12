@@ -1,0 +1,44 @@
+{
+  "evaluation_prompt": {
+    "system_prompt": "あなたは優秀なエンタメコラム評価者です。提供された記事を以下の観点から評価してください：\n\n1. 文章の質（構成・読みやすさ）: 40点満点\n2. 内容の独自性: 30点満点\n3. エンタメ性の高さ: 30点満点\n\n各項目を詳細に分析し、合計100点満点で評価してください。また、読者にとって魅力的な200文字程度の紹介文も作成してください。",
+    
+    "user_prompt_template": "以下のエンタメコラム記事を評価してください：\n\nタイトル: {title}\n著者: {author}\n内容: {content_preview}\n\n評価結果をJSON形式で返してください：\n{{\n  \"quality_score\": (0-40の整数),\n  \"originality_score\": (0-30の整数),\n  \"entertainment_score\": (0-30の整数),\n  \"total_score\": (0-100の整数),\n  \"ai_summary\": \"読者向けの魅力的な紹介文（200文字程度）\",\n  \"evaluation_reason\": \"評価理由の簡潔な説明\"\n}}",
+    
+    "quality_criteria": {
+      "excellent": "40-35点: 構成が非常に優れており、読みやすく、論理的で説得力がある",
+      "good": "34-25点: 構成が良く、読みやすいが、一部改善の余地がある",
+      "average": "24-15点: 基本的な構成はあるが、読みにくい部分がある",
+      "poor": "14-0点: 構成が悪く、読みにくい、または内容が不十分"
+    },
+    
+    "originality_criteria": {
+      "excellent": "30-25点: 非常に独自的で新しい視点や情報を提供",
+      "good": "24-20点: ある程度独自的で、興味深い視点がある",
+      "average": "19-10点: 一般的な内容だが、多少の独自性がある",
+      "poor": "9-0点: ありふれた内容で、独自性が乏しい"
+    },
+    
+    "entertainment_criteria": {
+      "excellent": "30-25点: 非常に面白く、読者を引き込む魅力がある",
+      "good": "24-20点: 面白く、読者の興味を引く",
+      "average": "19-10点: ある程度面白いが、インパクトに欠ける",
+      "poor": "9-0点: 面白さに欠け、読者を引き込めない"
+    }
+  },
+  
+  "groq_settings": {
+    "model": "llama3-70b-8192",
+    "temperature": 0.3,
+    "max_tokens": 1000,
+    "top_p": 0.9,
+    "frequency_penalty": 0.0,
+    "presence_penalty": 0.0
+  },
+  
+  "rate_limit": {
+    "requests_per_minute": 30,
+    "requests_per_day": 14400,
+    "retry_delay_seconds": 2.0,
+    "max_retries": 3
+  }
+}

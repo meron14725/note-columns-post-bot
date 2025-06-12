@@ -1,0 +1,38 @@
+{
+  "note_api_base": "https://note.com/api/v2",
+  "collection_urls": [
+    {
+      "name": "エンタメ総合",
+      "category": "entertainment",
+      "url": "https://note.com/api/v2/notes?categoryKey=entertainment&order=new&only_free=true",
+      "description": "エンタメ全般のカテゴリから記事を収集"
+    },
+    {
+      "name": "映画・ドラマ",
+      "category": "movie_drama",
+      "url": "https://note.com/api/v2/notes?categoryKey=movie&order=new&only_free=true",
+      "description": "映画・ドラマ関連の記事を収集"
+    },
+    {
+      "name": "音楽",
+      "category": "music",
+      "url": "https://note.com/api/v2/notes?categoryKey=music&order=new&only_free=true",
+      "description": "音楽関連の記事を収集"
+    },
+    {
+      "name": "アニメ・ゲーム",
+      "category": "anime_game",
+      "url": "https://note.com/api/v2/notes?categoryKey=game&order=new&only_free=true",
+      "description": "アニメ・ゲーム関連の記事を収集"
+    }
+  ],
+  "collection_settings": {
+    "max_pages_per_category": 5,
+    "articles_per_page": 20,
+    "stop_after_old_articles": true,
+    "old_article_threshold_days": 1,
+    "request_delay_seconds": 1.0,
+    "max_retries": 3,
+    "timeout_seconds": 30
+  }
+}

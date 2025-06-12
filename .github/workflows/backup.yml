@@ -1,0 +1,177 @@
+name: Database Backup
+
+on:
+  schedule:
+    # Run backup every Sunday at 00:00 UTC (09:00 JST)
+    - cron: '0 0 * * 0'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    permissions:
+      contents: write  # Required for creating releases
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          version: "latest"
+          
+      - name: Install dependencies
+        run: |
+          uv sync
+          
+      - name: Create backup
+        run: |
+          DATE=$(date +'%Y%m%d')
+          BACKUP_DIR="backup_${DATE}"
+          mkdir -p "${BACKUP_DIR}"
+          
+          # Backup database if it exists
+          if [ -f backend/database/entertainment_columns.db ]; then
+            cp backend/database/entertainment_columns.db "${BACKUP_DIR}/"
+            echo "✅ Database backed up"
+          else
+            echo "⚠️ No database found to backup"
+          fi
+          
+          # Backup configuration files
+          cp -r config/ "${BACKUP_DIR}/" 2>/dev/null || echo "⚠️ Config directory not found"
+          
+          # Backup current JSON data
+          if [ -d docs/data ]; then
+            cp -r docs/data/ "${BACKUP_DIR}/" 2>/dev/null || echo "⚠️ Data directory not found"
+            echo "✅ JSON data backed up"
+          fi
+          
+          # Create backup archive
+          tar -czf "${BACKUP_DIR}.tar.gz" "${BACKUP_DIR}/"
+          
+          echo "BACKUP_FILE=${BACKUP_DIR}.tar.gz" >> $GITHUB_ENV
+          echo "BACKUP_DATE=${DATE}" >> $GITHUB_ENV
+          
+      - name: Generate backup statistics
+        run: |
+          echo "## Backup Report - $(date +'%Y/%m/%d')" > backup_report.md
+          echo "" >> backup_report.md
+          
+          if [ -f backend/database/entertainment_columns.db ]; then
+            # Get database statistics using Python
+            python3 << 'EOF' >> backup_report.md
+          import sqlite3
+          import os
+          
+          if os.path.exists('backend/database/entertainment_columns.db'):
+              conn = sqlite3.connect('backend/database/entertainment_columns.db')
+              cursor = conn.cursor()
+              
+              try:
+                  # Get table counts
+                  cursor.execute("SELECT COUNT(*) FROM articles")
+                  articles_count = cursor.fetchone()[0]
+                  
+                  cursor.execute("SELECT COUNT(*) FROM evaluations")
+                  evaluations_count = cursor.fetchone()[0]
+                  
+                  cursor.execute("SELECT COUNT(*) FROM twitter_posts")
+                  tweets_count = cursor.fetchone()[0]
+                  
+                  print(f"- 📄 Total Articles: {articles_count:,}")
+                  print(f"- ⭐ Total Evaluations: {evaluations_count:,}")
+                  print(f"- 🐦 Total Tweets: {tweets_count:,}")
+                  print("")
+                  
+                  # Get recent activity
+                  cursor.execute("""
+                      SELECT COUNT(*) FROM articles 
+                      WHERE collected_at >= datetime('now', '-7 days')
+                  """)
+                  recent_articles = cursor.fetchone()[0]
+                  
+                  cursor.execute("""
+                      SELECT COUNT(*) FROM evaluations 
+                      WHERE evaluated_at >= datetime('now', '-7 days')
+                  """)
+                  recent_evaluations = cursor.fetchone()[0]
+                  
+                  print(f"### Recent Activity (Last 7 Days)")
+                  print(f"- 📝 New Articles: {recent_articles}")
+                  print(f"- 🤖 New Evaluations: {recent_evaluations}")
+                  
+              except Exception as e:
+                  print(f"Error getting database stats: {e}")
+              finally:
+                  conn.close()
+          else:
+              print("No database found")
+          EOF
+          else
+            echo "- ⚠️ No database found" >> backup_report.md
+          fi
+          
+          echo "" >> backup_report.md
+          echo "### Backup Contents" >> backup_report.md
+          echo "\`\`\`" >> backup_report.md
+          tar -tzf "${BACKUP_FILE}" | head -20 >> backup_report.md
+          if [ $(tar -tzf "${BACKUP_FILE}" | wc -l) -gt 20 ]; then
+            echo "... and $(( $(tar -tzf "${BACKUP_FILE}" | wc -l) - 20 )) more files" >> backup_report.md
+          fi
+          echo "\`\`\`" >> backup_report.md
+          
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: database-backup-${{ env.BACKUP_DATE }}
+          path: ${{ env.BACKUP_FILE }}
+          retention-days: 90
+          
+      - name: Create release with backup
+        if: github.ref == 'refs/heads/main'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: backup-${{ env.BACKUP_DATE }}
+          release_name: Database Backup - ${{ env.BACKUP_DATE }}
+          body_path: backup_report.md
+          draft: false
+          prerelease: false
+          
+      - name: Upload backup to release
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.BACKUP_FILE }}
+          asset_name: ${{ env.BACKUP_FILE }}
+          asset_content_type: application/gzip
+          
+      - name: Clean up old artifacts
+        run: |
+          echo "🧹 Backup creation completed"
+          echo "📦 Backup saved as artifact and release"
+          echo "🗂️ Old artifacts will be automatically cleaned up by GitHub"
+          
+      - name: Report status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Backup completed successfully"
+            echo "💾 Backup saved as release: backup-${{ env.BACKUP_DATE }}"
+          else
+            echo "❌ Backup failed"
+            echo "🔍 Check the logs for error details"
+          fi

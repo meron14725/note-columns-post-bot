@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:docs.anthropic.com)"
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(claude mcp)",
+      "Bash(claude mcp add playwright npx @playwright/mcp-server)",
+      "Bash(claude mcp list)",
+      "Bash(env)",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

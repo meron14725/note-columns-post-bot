@@ -1,0 +1,46 @@
+{
+  "daily_posts": [
+    {
+      "time": "10:00",
+      "timezone": "Asia/Tokyo",
+      "post_type": "top5_morning",
+      "title": "🌅 今日のエンタメコラム TOP5（朝版）",
+      "description": "朝の通勤・通学時間に読みたいエンタメコラムをお届け"
+    },
+    {
+      "time": "19:00", 
+      "timezone": "Asia/Tokyo",
+      "post_type": "top5_evening",
+      "title": "🌙 今日のエンタメコラム TOP5（夜版）",
+      "description": "一日の終わりにじっくり読みたいエンタメコラムをお届け"
+    }
+  ],
+  
+  "post_template": {
+    "header": "{title}\n\n",
+    "article_format": "{rank}位 📝 {title}\n✨ スコア: {total_score}点\n👤 {author}\n🔗 {url}\n\n",
+    "footer": "#エンタメコラム #note #AI評価 #今日のおすすめ\n\n🤖 AIが厳選したエンタメコラムを毎日お届け\n📊 詳細な評価とランキングはこちら: {website_url}"
+  },
+  
+  "selection_criteria": {
+    "top5_morning": {
+      "min_score": 70,
+      "max_articles": 5,
+      "prefer_categories": ["entertainment", "movie_drama", "music"],
+      "exclude_sensitive": true
+    },
+    "top5_evening": {
+      "min_score": 75,
+      "max_articles": 5, 
+      "prefer_categories": ["anime_game", "entertainment"],
+      "exclude_sensitive": true
+    }
+  },
+  
+  "twitter_settings": {
+    "max_tweet_length": 280,
+    "hashtag_limit": 4,
+    "url_shortening": true,
+    "auto_thread": false
+  }
+}

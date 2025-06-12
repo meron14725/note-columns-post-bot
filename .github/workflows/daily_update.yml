@@ -1,0 +1,150 @@
+name: Daily Article Collection and Evaluation
+
+on:
+  schedule:
+    # Run every day at 21:00 UTC (6:00 JST)
+    - cron: '0 21 * * *'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  daily-update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    permissions:
+      contents: write  # Required for pushing to repository
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          version: "latest"
+          
+      - name: Install dependencies
+        run: |
+          uv sync
+          
+      - name: Create necessary directories
+        run: |
+          mkdir -p backend/database
+          mkdir -p backend/logs
+          mkdir -p backend/output
+          mkdir -p docs/data/archives
+          
+      - name: Run daily batch process
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          DATABASE_PATH: backend/database/entertainment_columns.db
+          LOG_LEVEL: INFO
+          GITHUB_PAGES_URL: ${{ vars.GITHUB_PAGES_URL }}
+          GITHUB_REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+        run: |
+          uv run python backend/batch/daily_process.py
+          
+      - name: Copy JSON files to docs directory
+        run: |
+          # Copy generated JSON files from output to docs/data
+          if [ -f backend/output/articles.json ]; then
+            cp backend/output/articles.json docs/data/
+          fi
+          if [ -f backend/output/top5.json ]; then
+            cp backend/output/top5.json docs/data/
+          fi
+          if [ -f backend/output/meta.json ]; then
+            cp backend/output/meta.json docs/data/
+          fi
+          if [ -f backend/output/categories.json ]; then
+            cp backend/output/categories.json docs/data/
+          fi
+          if [ -f backend/output/statistics.json ]; then
+            cp backend/output/statistics.json docs/data/
+          fi
+          
+          # Create archive
+          DATE=$(date +'%Y%m%d')
+          if [ -f docs/data/articles.json ]; then
+            cp docs/data/articles.json "docs/data/archives/articles_${DATE}.json"
+          fi
+          
+      - name: Update meta.json with build info
+        run: |
+          cat > docs/data/meta.json << EOF
+          {
+            "lastUpdated": "$(date -Iseconds)",
+            "version": "1.0.0",
+            "systemInfo": {
+              "totalArticles": $(cat docs/data/articles.json | jq '.total // 0' 2>/dev/null || echo '0'),
+              "evaluatedArticles": $(cat docs/data/articles.json | jq '.total // 0' 2>/dev/null || echo '0'),
+              "websiteUrl": "${{ vars.GITHUB_PAGES_URL }}",
+              "githubRepo": "${{ github.server_url }}/${{ github.repository }}"
+            },
+            "buildInfo": {
+              "buildTime": "$(date -Iseconds)",
+              "generator": "entertainment-column-system",
+              "commitSha": "${{ github.sha }}",
+              "workflow": "${{ github.workflow }}"
+            }
+          }
+          EOF
+          
+      - name: Configure Git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+      - name: Commit and push changes
+        run: |
+          git add docs/data/
+          
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "🤖 Daily update - $(date +'%Y/%m/%d %H:%M JST')
+
+          - Collected and evaluated new articles
+          - Updated website data files
+          - Generated daily rankings and statistics
+          
+          🔄 Generated with [Claude Code](https://claude.ai/code)
+          
+          Co-Authored-By: Claude <noreply@anthropic.com>"
+            
+            git push
+            echo "Changes pushed successfully"
+          fi
+          
+      - name: Upload logs as artifact
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: daily-update-logs-${{ github.run_number }}
+          path: backend/logs/
+          retention-days: 7
+          
+      - name: Upload database backup
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: database-backup-${{ github.run_number }}
+          path: backend/database/
+          retention-days: 30
+          
+      - name: Report status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Daily update completed successfully"
+            echo "📊 Check the website for updated articles and rankings"
+          else
+            echo "❌ Daily update failed"
+            echo "🔍 Check the logs for error details"
+          fi

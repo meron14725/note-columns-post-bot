@@ -1,0 +1,79 @@
+name: Twitter Daily Posts
+
+on:
+  schedule:
+    # Morning post at 01:00 UTC (10:00 JST)
+    - cron: '0 1 * * *'
+    # Evening post at 10:00 UTC (19:00 JST)
+    - cron: '0 10 * * *'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  twitter-post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          version: "latest"
+          
+      - name: Install dependencies
+        run: |
+          uv sync
+          
+      - name: Create necessary directories
+        run: |
+          mkdir -p backend/database
+          mkdir -p backend/logs
+          
+      - name: Check if database exists
+        run: |
+          if [ ! -f backend/database/entertainment_columns.db ]; then
+            echo "⚠️ Database not found. Twitter posting may not work properly."
+            echo "This is expected on first run or if daily update hasn't run yet."
+          else
+            echo "✅ Database found"
+          fi
+          
+      - name: Run Twitter posting
+        env:
+          TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
+          TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
+          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+          TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
+          DATABASE_PATH: backend/database/entertainment_columns.db
+          LOG_LEVEL: INFO
+          GITHUB_PAGES_URL: ${{ vars.GITHUB_PAGES_URL }}
+        run: |
+          uv run python backend/batch/post_to_twitter.py
+          
+      - name: Upload logs as artifact
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: twitter-post-logs-${{ github.run_number }}
+          path: backend/logs/
+          retention-days: 7
+          
+      - name: Report status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Twitter posting completed successfully"
+            echo "🐦 Check Twitter for the latest post"
+          else
+            echo "❌ Twitter posting failed"
+            echo "🔍 Check the logs for error details"
+            echo "💡 Make sure Twitter API credentials are properly configured"
+          fi

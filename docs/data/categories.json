@@ -1,25 +1,114 @@
 {
-  "lastUpdated": "2024-12-06T12:00:00+09:00",
+  "lastUpdated": "2025-06-13T00:02:59+09:00",
   "categories": {
     "entertainment": {
       "name": "エンタメ総合",
-      "count": 0,
-      "articles": []
+      "count": 1,
+      "articles": [
+        {
+          "id": "sample005",
+          "title": "エンタメ業界の2024年総まとめ",
+          "url": "https://note.com/sample/n/sample005",
+          "thumbnail": "https://via.placeholder.com/300x200/1ABC9C/FFFFFF?text=Entertainment+2024",
+          "author": "エンタメライター",
+          "published_at": "2024-12-06T12:00:00",
+          "total_score": 80,
+          "scores": {
+            "quality": 32,
+            "originality": 24,
+            "entertainment": 24
+          },
+          "ai_summary": "映画、ドラマ、アニメ、音楽など2024年のエンタメ業界全体を俯瞰した総まとめ記事。業界の動向と来年への展望も含めた包括的な内容です。",
+          "evaluated_at": "2024-12-06T14:00:00",
+          "category": "entertainment"
+        }
+      ]
     },
     "movie_drama": {
       "name": "映画・ドラマ",
-      "count": 0,
-      "articles": []
+      "count": 2,
+      "articles": [
+        {
+          "id": "sample002",
+          "title": "Netflix配信ドラマの隠れた名作5選",
+          "url": "https://note.com/sample/n/sample002",
+          "thumbnail": "https://via.placeholder.com/300x200/E74C3C/FFFFFF?text=Netflix+Drama",
+          "author": "ドラマウォッチャー",
+          "published_at": "2024-12-09T15:30:00",
+          "total_score": 88,
+          "scores": {
+            "quality": 35,
+            "originality": 26,
+            "entertainment": 27
+          },
+          "ai_summary": "話題にならなかったけれど実は傑作というNetfixドラマを厳選。知る人ぞ知る隠れた名作を発掘したい方におすすめの記事です。",
+          "evaluated_at": "2024-12-09T18:00:00",
+          "category": "movie_drama"
+        },
+        {
+          "id": "sample004",
+          "title": "映画館で見るべき2024年の邦画",
+          "url": "https://note.com/sample/n/sample004",
+          "thumbnail": "https://via.placeholder.com/300x200/F39C12/FFFFFF?text=Japanese+Cinema",
+          "author": "映画批評家",
+          "published_at": "2024-12-07T14:00:00",
+          "total_score": 82,
+          "scores": {
+            "quality": 33,
+            "originality": 24,
+            "entertainment": 25
+          },
+          "ai_summary": "劇場で絶対に見ておきたい2024年の邦画作品を厳選。監督の手腕、俳優の演技、映像美など総合的に評価した映画ファン向けの記事です。",
+          "evaluated_at": "2024-12-07T16:00:00",
+          "category": "movie_drama"
+        }
+      ]
     },
     "music": {
       "name": "音楽",
-      "count": 0,
-      "articles": []
+      "count": 1,
+      "articles": [
+        {
+          "id": "sample003",
+          "title": "2024年洋楽シーンを振り返る",
+          "url": "https://note.com/sample/n/sample003",
+          "thumbnail": "https://via.placeholder.com/300x200/9B59B6/FFFFFF?text=Music+2024",
+          "author": "音楽ジャーナリスト",
+          "published_at": "2024-12-08T20:00:00",
+          "total_score": 85,
+          "scores": {
+            "quality": 34,
+            "originality": 25,
+            "entertainment": 26
+          },
+          "ai_summary": "2024年の洋楽シーンで注目されたアーティストと楽曲を紹介。新進気鋭のアーティストから巨匠の新作まで幅広くカバーした音楽ファン必読の内容です。",
+          "evaluated_at": "2024-12-08T22:00:00",
+          "category": "music"
+        }
+      ]
     },
     "anime_game": {
       "name": "アニメ・ゲーム",
-      "count": 0,
-      "articles": []
+      "count": 1,
+      "articles": [
+        {
+          "id": "sample001",
+          "title": "2024年最高のアニメ作品ベスト10",
+          "url": "https://note.com/sample/n/sample001",
+          "thumbnail": "https://via.placeholder.com/300x200/4A90E2/FFFFFF?text=Anime+2024",
+          "author": "アニメ評論家太郎",
+          "published_at": "2024-12-10T10:00:00",
+          "total_score": 92,
+          "scores": {
+            "quality": 38,
+            "originality": 28,
+            "entertainment": 26
+          },
+          "ai_summary": "2024年のアニメ界を代表する10作品を徹底解析。作画クオリティ、ストーリー展開、キャラクター魅力度など多角的な視点から評価した必見の記事です。",
+          "evaluated_at": "2024-12-10T12:00:00",
+          "category": "anime_game"
+        }
+      ]
     }
   }
 }

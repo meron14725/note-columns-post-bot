@@ -34,7 +34,8 @@
       "Bash(PYTHONPATH=. python3 scripts/test_streaming_evaluation.py)",
       "Bash(PYTHONPATH=. python3 scripts/test_streaming_daily_batch.py)",
       "Bash(git fetch:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(git rm:*)"
     ],
     "deny": []
   }

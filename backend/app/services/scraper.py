@@ -1309,7 +1309,6 @@ class NoteScraper:
                 author=detail.get('author', 'Unknown'),
                 category='article',  # Default category
                 content_preview=detail.get('content_preview', ''),
-                content_full=detail.get('content_full', ''),
                 note_data=NoteArticleData(
                     note_type=detail.get('type', 'TextNote'),
                     comment_count=detail.get('comment_count', 0)

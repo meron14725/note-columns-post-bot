@@ -1,38 +1,31 @@
 {
-  "note_api_base": "https://note.com/api/v2",
   "collection_urls": [
     {
-      "name": "エンタメ総合",
-      "category": "entertainment",
-      "url": "https://note.com/api/v2/notes?categoryKey=entertainment&order=new&only_free=true",
-      "description": "エンタメ全般のカテゴリから記事を収集"
+      "name": "K-POP",
+      "url": "https://note.com/interests/K-POP",
+      "category": "K-POP"
     },
     {
-      "name": "映画・ドラマ",
-      "category": "movie_drama",
-      "url": "https://note.com/api/v2/notes?categoryKey=movie&order=new&only_free=true",
-      "description": "映画・ドラマ関連の記事を収集"
+      "name": "邦楽",
+      "url": "https://note.com/interests/%E9%82%A6%E6%A5%BD",
+      "category": "邦楽"
     },
     {
-      "name": "音楽",
-      "category": "music",
-      "url": "https://note.com/api/v2/notes?categoryKey=music&order=new&only_free=true",
-      "description": "音楽関連の記事を収集"
+      "name": "洋楽",
+      "url": "https://note.com/interests/%E6%B4%8B%E6%A5%BD",
+      "category": "洋楽"
     },
     {
-      "name": "アニメ・ゲーム",
-      "category": "anime_game",
-      "url": "https://note.com/api/v2/notes?categoryKey=game&order=new&only_free=true",
-      "description": "アニメ・ゲーム関連の記事を収集"
+      "name": "ジャズ",
+      "url": "https://note.com/interests/%E3%82%B8%E3%83%A3%E3%82%BA",
+      "category": "ジャズ"
     }
   ],
   "collection_settings": {
-    "max_pages_per_category": 5,
-    "articles_per_page": 20,
-    "stop_after_old_articles": true,
-    "old_article_threshold_days": 1,
+    "fetch_article_details": false,
     "request_delay_seconds": 1.0,
     "max_retries": 3,
-    "timeout_seconds": 30
+    "old_article_threshold_days": 1,
+    "stop_after_old_articles": true
   }
 }

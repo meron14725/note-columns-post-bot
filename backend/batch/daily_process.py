@@ -14,7 +14,7 @@ from backend.app.repositories.article_repository import ArticleRepository
 from backend.app.repositories.evaluation_repository import EvaluationRepository
 from backend.app.utils.logger import setup_logger, get_logger, log_execution_time
 from backend.app.utils.database import db_manager
-from config.config import config
+from config.config import config, validate_required_env_vars, ensure_directories
 
 logger = setup_logger("daily_batch", console=True)
 
@@ -30,8 +30,8 @@ class DailyBatchProcessor:
         
         # Validate configuration
         try:
-            config.validate_required_env_vars()
-            config.ensure_directories()
+            validate_required_env_vars()
+            ensure_directories()
         except Exception as e:
             logger.error(f"Configuration validation failed: {e}")
             raise
@@ -46,8 +46,8 @@ class DailyBatchProcessor:
         logger.info("Starting daily batch process")
         
         try:
-            # Step 1: Collect articles
-            articles = await self._collect_articles()
+            # Step 1: Collect articles (2-phase process)
+            articles = await self._collect_articles_two_phase()
             if not articles:
                 logger.warning("No new articles collected")
                 return False
@@ -78,24 +78,106 @@ class DailyBatchProcessor:
             logger.error(f"Daily batch process failed: {e}")
             return False
     
-    async def _collect_articles(self) -> list:
-        """Collect articles from note.
+    async def _collect_articles_two_phase(self) -> list:
+        """Collect articles from note using 2-phase process.
+        
+        Phase 1: Collect article list (key, urlname) from all categories
+        Phase 2: Fetch detailed content for each article
         
         Returns:
-            List of collected articles
+            List of collected articles with full details
         """
-        logger.info("Step 1: Collecting articles")
+        logger.info("Step 1: Collecting articles (2-phase process)")
         
         try:
             async with NoteScraper() as scraper:
-                articles = await scraper.collect_articles()
-            
-            logger.info(f"Collected {len(articles)} articles from note")
-            return articles
+                # Phase 1: Collect article list from all categories
+                logger.info("Phase 1: Collecting article list from all categories...")
+                article_list = await scraper.collect_article_list()
+                
+                if not article_list:
+                    logger.warning("No articles found in any category")
+                    return []
+                
+                logger.info(f"Found {len(article_list)} articles across all categories")
+                
+                # Log article distribution by category
+                category_counts = {}
+                for ref in article_list:
+                    category = ref.get('category', 'unknown')
+                    category_counts[category] = category_counts.get(category, 0) + 1
+                
+                for category, count in category_counts.items():
+                    logger.info(f"  - {category}: {count} articles")
+                
+                # Check existing articles to avoid duplicates
+                existing_ids = set()
+                try:
+                    existing_articles = self.article_repo.get_all_article_ids()
+                    existing_ids = set(existing_articles)
+                    logger.info(f"Found {len(existing_ids)} existing articles in database")
+                except Exception as e:
+                    logger.warning(f"Could not check existing articles: {e}")
+                
+                # Filter out existing articles
+                new_article_refs = []
+                for ref in article_list:
+                    if ref['id'] not in existing_ids:
+                        new_article_refs.append(ref)
+                
+                if not new_article_refs:
+                    logger.info("All articles already exist in database")
+                    return []
+                
+                logger.info(f"Found {len(new_article_refs)} new articles to fetch details")
+                
+                # Phase 2: Fetch detailed content for each new article
+                logger.info("Phase 2: Fetching article details...")
+                articles = []
+                
+                for i, ref in enumerate(new_article_refs):
+                    try:
+                        logger.info(f"[{i+1}/{len(new_article_refs)}] Fetching: {ref['title'][:50]}...")
+                        
+                        article = await scraper.collect_article_with_details(
+                            urlname=ref['urlname'],
+                            key=ref['key']
+                        )
+                        
+                        if article:
+                            # Preserve category from reference
+                            article.category = ref.get('category', 'article')
+                            articles.append(article)
+                            logger.info(f"  ✓ Successfully fetched details (preview: {len(article.content_preview)} chars)")
+                        else:
+                            logger.warning(f"  ✗ Failed to fetch details for {ref['key']}")
+                        
+                        # Rate limiting between requests
+                        delay = config.get_collection_settings().get("request_delay_seconds", 1.0)
+                        await asyncio.sleep(delay)
+                        
+                        # Progress checkpoint every 10 articles
+                        if (i + 1) % 10 == 0:
+                            logger.info(f"Progress: {i+1}/{len(new_article_refs)} articles processed")
+                        
+                    except Exception as e:
+                        logger.error(f"  ✗ Error fetching article {ref['key']}: {e}")
+                        continue
+                
+                logger.info(f"Successfully collected {len(articles)} articles with full details")
+                return articles
             
         except Exception as e:
             logger.error(f"Article collection failed: {e}")
             return []
+    
+    async def _collect_articles(self) -> list:
+        """Legacy method - redirects to two-phase collection.
+        
+        Returns:
+            List of collected articles
+        """
+        return await self._collect_articles_two_phase()
     
     def _save_articles(self, articles: list) -> int:
         """Save articles to database.

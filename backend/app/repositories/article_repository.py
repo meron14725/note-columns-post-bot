@@ -345,3 +345,58 @@ class ArticleRepository:
             ai_summary=row['ai_summary'],
             evaluated_at=datetime.fromisoformat(row['evaluated_at']),
         )
+    
+    def get_all_article_ids(self) -> List[str]:
+        """Get all article IDs from database.
+        
+        Returns:
+            List of article IDs
+        """
+        query = "SELECT id FROM articles"
+        
+        try:
+            results = self.db.execute_query(query)
+            return [row['id'] for row in results] if results else []
+        except Exception as e:
+            logger.error(f"Failed to get article IDs: {e}")
+            return []
+    
+    def get_articles_by_ids(self, article_ids: List[str]) -> List[Article]:
+        """Get multiple articles by their IDs.
+        
+        Args:
+            article_ids: List of article IDs
+            
+        Returns:
+            List of articles
+        """
+        if not article_ids:
+            return []
+        
+        placeholders = ','.join(['?' for _ in article_ids])
+        query = f"SELECT * FROM articles WHERE id IN ({placeholders})"
+        
+        try:
+            results = self.db.execute_query(query, tuple(article_ids))
+            return [self._row_to_article(row) for row in results]
+        except Exception as e:
+            logger.error(f"Failed to get articles by IDs: {e}")
+            return []
+    
+    def article_exists(self, article_id: str) -> bool:
+        """Check if article exists in database.
+        
+        Args:
+            article_id: Article ID to check
+            
+        Returns:
+            True if article exists, False otherwise
+        """
+        query = "SELECT COUNT(*) as count FROM articles WHERE id = ?"
+        
+        try:
+            result = self.db.execute_query(query, (article_id,))
+            return result[0]['count'] > 0 if result else False
+        except Exception as e:
+            logger.error(f"Failed to check article existence: {e}")
+            return False

@@ -3,7 +3,7 @@
 import os
 import json
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List  # Listを追加
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -175,6 +175,28 @@ class Config:
     def has_groq_credentials(self) -> bool:
         """Check if Groq credentials are available."""
         return bool(self.groq_api_key)
+    
+    def get_collection_settings(self) -> Dict[str, Any]:
+        """Get collection settings from urls configuration.
+        
+        Returns:
+            Dictionary containing collection settings
+        """
+        return self.urls_config.get("collection_settings", {
+            "fetch_article_details": False,
+            "request_delay_seconds": 1.0,
+            "max_retries": 3,
+            "old_article_threshold_days": 1,
+            "stop_after_old_articles": True
+        })
+    
+    def get_collection_urls(self) -> List[Dict[str, Any]]:
+        """Get collection URLs from configuration.
+        
+        Returns:
+            List of URL configurations
+        """
+        return self.urls_config.get("collection_urls", [])
 
 
 # Global configuration instance

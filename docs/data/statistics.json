@@ -1,22 +1,22 @@
 {
-  "lastUpdated": "2024-12-06T12:00:00+09:00",
+  "lastUpdated": "2025-06-13T00:02:59+09:00",
   "statistics": {
     "daily": {
-      "total": 0,
-      "average_total_score": 0,
-      "high_quality_count": 0
+      "total": 5,
+      "average_total_score": 85.4,
+      "high_quality_count": 5
     },
     "weekly": {
-      "total": 0,
-      "high_quality_count": 0
+      "total": 5,
+      "high_quality_count": 5
     },
     "monthly": {
-      "total": 0,
-      "high_quality_count": 0
+      "total": 5,
+      "high_quality_count": 5
     },
     "allTime": {
-      "total": 0,
-      "max_total_score": 0
+      "total": 5,
+      "max_total_score": 92
     }
   }
 }

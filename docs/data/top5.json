@@ -1,91 +1,23 @@
 {
-  "lastUpdated": "2025-06-13T00:02:59+09:00",
+  "lastUpdated": "2025-06-13T13:04:34.659499",
   "period": "daily",
   "articles": [
     {
-      "id": "sample001",
-      "title": "2024年最高のアニメ作品ベスト10",
-      "url": "https://note.com/sample/n/sample001",
-      "thumbnail": "https://via.placeholder.com/300x200/4A90E2/FFFFFF?text=Anime+2024",
-      "author": "アニメ評論家太郎",
-      "published_at": "2024-12-10T10:00:00",
-      "total_score": 92,
+      "id": "unknown",
+      "title": "K-POP第5世代男性グループの印象を語る【第8弾：EVNNE】｜Eum（うむ）",
+      "url": "https://note.com/eum_rhythm/n/n864e2c512875",
+      "thumbnail": "https://assets.st-note.com/production/uploads/images/194921214/rectangle_large_type_2_ae5e09be371d50c4cbda3aab9c0eeb8b.jpg?fit=bounds&quality=85&width=1280",
+      "author": "“魅力を言語化”×副業",
+      "published_at": "2025-06-13T06:30:00+09:00",
+      "category": "K-POP",
+      "total_score": 89,
       "scores": {
-        "quality": 38,
-        "originality": 28,
-        "entertainment": 26
-      },
-      "ai_summary": "2024年のアニメ界を代表する10作品を徹底解析。作画クオリティ、ストーリー展開、キャラクター魅力度など多角的な視点から評価した必見の記事です。",
-      "evaluated_at": "2024-12-10T12:00:00",
-      "category": "anime_game"
-    },
-    {
-      "id": "sample002",
-      "title": "Netflix配信ドラマの隠れた名作5選",
-      "url": "https://note.com/sample/n/sample002",
-      "thumbnail": "https://via.placeholder.com/300x200/E74C3C/FFFFFF?text=Netflix+Drama",
-      "author": "ドラマウォッチャー",
-      "published_at": "2024-12-09T15:30:00",
-      "total_score": 88,
-      "scores": {
-        "quality": 35,
-        "originality": 26,
-        "entertainment": 27
-      },
-      "ai_summary": "話題にならなかったけれど実は傑作というNetfixドラマを厳選。知る人ぞ知る隠れた名作を発掘したい方におすすめの記事です。",
-      "evaluated_at": "2024-12-09T18:00:00",
-      "category": "movie_drama"
-    },
-    {
-      "id": "sample003",
-      "title": "2024年洋楽シーンを振り返る",
-      "url": "https://note.com/sample/n/sample003",
-      "thumbnail": "https://via.placeholder.com/300x200/9B59B6/FFFFFF?text=Music+2024",
-      "author": "音楽ジャーナリスト",
-      "published_at": "2024-12-08T20:00:00",
-      "total_score": 85,
-      "scores": {
-        "quality": 34,
+        "quality": 36,
         "originality": 25,
-        "entertainment": 26
+        "entertainment": 28
       },
-      "ai_summary": "2024年の洋楽シーンで注目されたアーティストと楽曲を紹介。新進気鋭のアーティストから巨匠の新作まで幅広くカバーした音楽ファン必読の内容です。",
-      "evaluated_at": "2024-12-08T22:00:00",
-      "category": "music"
-    },
-    {
-      "id": "sample004",
-      "title": "映画館で見るべき2024年の邦画",
-      "url": "https://note.com/sample/n/sample004",
-      "thumbnail": "https://via.placeholder.com/300x200/F39C12/FFFFFF?text=Japanese+Cinema",
-      "author": "映画批評家",
-      "published_at": "2024-12-07T14:00:00",
-      "total_score": 82,
-      "scores": {
-        "quality": 33,
-        "originality": 24,
-        "entertainment": 25
-      },
-      "ai_summary": "劇場で絶対に見ておきたい2024年の邦画作品を厳選。監督の手腕、俳優の演技、映像美など総合的に評価した映画ファン向けの記事です。",
-      "evaluated_at": "2024-12-07T16:00:00",
-      "category": "movie_drama"
-    },
-    {
-      "id": "sample005",
-      "title": "エンタメ業界の2024年総まとめ",
-      "url": "https://note.com/sample/n/sample005",
-      "thumbnail": "https://via.placeholder.com/300x200/1ABC9C/FFFFFF?text=Entertainment+2024",
-      "author": "エンタメライター",
-      "published_at": "2024-12-06T12:00:00",
-      "total_score": 80,
-      "scores": {
-        "quality": 32,
-        "originality": 24,
-        "entertainment": 24
-      },
-      "ai_summary": "映画、ドラマ、アニメ、音楽など2024年のエンタメ業界全体を俯瞰した総まとめ記事。業界の動向と来年への展望も含めた包括的な内容です。",
-      "evaluated_at": "2024-12-06T14:00:00",
-      "category": "entertainment"
+      "ai_summary": "K-POPファン文化が生み出す「例え頼み」の悪癖」を批判するエッセイ。著者は、SNS上での安易な例えが作品やキャラクターの多様性を狭める副作用を指摘し、語彙力や観察力の乏しさを恥じる気持ちが無いと批判する。代わりに、対象を高い解像度で観察し言語化する力、すなわち描写力と語彙力の向上を提唱する。",
+      "evaluated_at": "2025-06-13T13:04:28.413353"
     }
   ]
 }

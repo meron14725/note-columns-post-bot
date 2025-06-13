@@ -1,6 +1,6 @@
 -- entertainment-column-system database schema
 
--- Articles table: stores collected articles from note
+-- Articles table: stores collected articles from note (no full content, only preview)
 CREATE TABLE IF NOT EXISTS articles (
     id TEXT PRIMARY KEY,                -- note article ID
     title TEXT NOT NULL,                -- article title
@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS articles (
     thumbnail TEXT,                     -- thumbnail image URL
     published_at DATETIME NOT NULL,     -- publication date
     author TEXT NOT NULL,               -- author name
-    content_preview TEXT,               -- article preview text
+    content_preview TEXT,               -- article preview text (short)
     category TEXT NOT NULL,             -- category (entertainment)
     collected_at DATETIME DEFAULT CURRENT_TIMESTAMP,  -- collection timestamp
     is_evaluated BOOLEAN DEFAULT FALSE, -- evaluation flag

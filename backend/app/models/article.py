@@ -26,7 +26,6 @@ class Article(BaseModel):
     published_at: datetime = Field(..., description="Publication date")
     author: str = Field(..., description="Author name")
     content_preview: Optional[str] = Field(None, description="Article preview text")
-    content_full: Optional[str] = Field(None, description="Full article content for AI evaluation")
     category: str = Field(..., description="Article category")
     collected_at: datetime = Field(default_factory=datetime.now, description="Collection timestamp")
     is_evaluated: bool = Field(False, description="Evaluation status flag")

@@ -12,7 +12,8 @@ from backend.app.services.evaluator import ArticleEvaluator
 from backend.app.services.json_generator import JSONGenerator
 from backend.app.repositories.article_repository import ArticleRepository
 from backend.app.repositories.evaluation_repository import EvaluationRepository
-from backend.app.utils.logger import setup_logger, get_logger, log_execution_time
+from backend.app.models.article import Article, NoteArticleMetadata
+from backend.app.utils.logger import setup_logger, log_execution_time
 from backend.app.utils.database import db_manager
 from config.config import config, validate_required_env_vars, ensure_directories
 
@@ -38,58 +39,49 @@ class DailyBatchProcessor:
     
     @log_execution_time
     async def run_daily_batch(self) -> bool:
-        """Run the complete daily batch process.
+        """Run the complete daily batch process with streaming evaluation.
         
         Returns:
             True if batch completed successfully
         """
-        logger.info("Starting daily batch process")
+        logger.info("Starting daily batch process (streaming evaluation)")
         
         try:
-            # Step 1: Collect articles (2-phase process)
-            articles = await self._collect_articles_two_phase()
-            if not articles:
-                logger.warning("No new articles collected")
+            # Step 1: Streaming collection and evaluation (articles → evaluate → save evaluation → discard full content)
+            evaluations_count = await self._collect_and_evaluate_streaming()
+            if evaluations_count == 0:
+                logger.warning("No new articles processed or evaluated")
                 return False
             
-            # Step 2: Save articles to database
-            saved_count = self._save_articles(articles)
-            logger.info(f"Saved {saved_count} articles to database")
+            logger.info(f"Completed streaming evaluation: {evaluations_count} articles")
             
-            # Step 3: Evaluate unevaluated articles
-            evaluations = await self._evaluate_articles()
-            if evaluations:
-                eval_count = self._save_evaluations(evaluations)
-                logger.info(f"Completed {eval_count} evaluations")
-            
-            # Step 4: Generate JSON files
+            # Step 2: Generate JSON files
             json_success = self._generate_json_files()
             if not json_success:
                 logger.error("Failed to generate JSON files")
                 return False
             
-            # Step 5: Log completion statistics
+            # Step 3: Log completion statistics
             self._log_completion_stats()
             
-            logger.info("Daily batch process completed successfully")
+            logger.info("Daily batch process completed successfully (streaming evaluation)")
             return True
             
         except Exception as e:
             logger.error(f"Daily batch process failed: {e}")
             return False
     
-    async def _collect_articles_two_phase(self) -> list:
-        """Collect articles from note using 2-phase process.
-        
-        Phase 1: Collect article list (key, urlname) from all categories
-        Phase 2: Fetch detailed content for each article
+    async def _collect_and_evaluate_streaming(self) -> int:
+        """Collect articles and evaluate them in streaming fashion (no full content storage).
         
         Returns:
-            List of collected articles with full details
+            Number of successful evaluations
         """
-        logger.info("Step 1: Collecting articles (2-phase process)")
+        logger.info("Step 1: Streaming collection and evaluation")
         
         try:
+            evaluations_count = 0
+            
             async with NoteScraper() as scraper:
                 # Phase 1: Collect article list from all categories
                 logger.info("Phase 1: Collecting article list from all categories...")
@@ -97,7 +89,7 @@ class DailyBatchProcessor:
                 
                 if not article_list:
                     logger.warning("No articles found in any category")
-                    return []
+                    return 0
                 
                 logger.info(f"Found {len(article_list)} articles across all categories")
                 
@@ -127,30 +119,84 @@ class DailyBatchProcessor:
                 
                 if not new_article_refs:
                     logger.info("All articles already exist in database")
-                    return []
+                    return 0
                 
-                logger.info(f"Found {len(new_article_refs)} new articles to fetch details")
+                logger.info(f"Found {len(new_article_refs)} new articles for streaming processing")
                 
-                # Phase 2: Fetch detailed content for each new article
-                logger.info("Phase 2: Fetching article details...")
-                articles = []
+                # Phase 2: Streaming processing (collect details → evaluate → save → discard)
+                logger.info("Phase 2: Streaming processing...")
+                evaluator = ArticleEvaluator()
                 
                 for i, ref in enumerate(new_article_refs):
                     try:
-                        logger.info(f"[{i+1}/{len(new_article_refs)}] Fetching: {ref['title'][:50]}...")
+                        logger.info(f"[{i+1}/{len(new_article_refs)}] Processing: {ref['title'][:50]}...")
                         
-                        article = await scraper.collect_article_with_details(
-                            urlname=ref['urlname'],
-                            key=ref['key']
+                        # Get session tokens if not already obtained
+                        if not scraper.client_code:
+                            base_url = f"https://note.com/{ref['urlname']}"
+                            if not scraper._get_session_tokens(base_url):
+                                logger.warning(f"  ✗ Failed to get session tokens for {ref['urlname']}")
+                                continue
+                        
+                        # Fetch article details (raw data)
+                        article_detail = scraper._fetch_article_detail(ref['urlname'], ref['key'])
+                        
+                        if not article_detail:
+                            logger.warning(f"  ✗ Failed to fetch details for {ref['key']}")
+                            continue
+                        
+                        # Extract full content from raw detail
+                        full_content = article_detail.get('content_full', '') or article_detail.get('content_preview', '')
+                        
+                        # Build article URL
+                        url = f"https://note.com/{ref['urlname']}/n/{ref['key']}"
+                        
+                        # Create article object for DB storage (without full content)
+                        article_for_db = Article(
+                            id=str(article_detail.get('id', ref['key'])),
+                            title=article_detail.get('title', ref['title']),
+                            url=url,
+                            thumbnail=article_detail.get('thumbnail', ref.get('thumbnail')),
+                            published_at=article_detail.get('published_at', ref['published_at']),
+                            author=article_detail.get('author', ref['author']),
+                            content_preview=article_detail.get('content_preview', ''),
+                            category=ref.get('category', 'article'),
+                            note_data=NoteArticleMetadata(
+                                note_type=article_detail.get('type', 'TextNote'),
+                                comment_count=article_detail.get('comment_count', 0),
+                                like_count=article_detail.get('like_count', 0),
+                                price=article_detail.get('price', 0),
+                                can_read=article_detail.get('can_read', True)
+                            )
                         )
                         
-                        if article:
-                            # Preserve category from reference
-                            article.category = ref.get('category', 'article')
-                            articles.append(article)
-                            logger.info(f"  ✓ Successfully fetched details (preview: {len(article.content_preview)} chars)")
+                        # Save article to DB (preview only)
+                        saved_count = self.article_repo.save_articles([article_for_db])
+                        
+                        if saved_count > 0:
+                            logger.info(f"  ✓ Saved article to DB (preview: {len(article_for_db.content_preview or '')} chars)")
+                            
+                            # Evaluate with full content
+                            logger.info(f"  🤖 Evaluating with full content ({len(full_content)} chars)...")
+                            evaluation = await evaluator.evaluate_article_with_full_content(article_for_db, full_content)
+                            
+                            if evaluation:
+                                # Save evaluation
+                                eval_saved = self.evaluation_repo.save_evaluations([evaluation])
+                                if eval_saved > 0:
+                                    # Mark article as evaluated
+                                    self.article_repo.mark_as_evaluated(article_for_db.id)
+                                    evaluations_count += 1
+                                    logger.info(f"  ✅ Evaluation completed (score: {evaluation.total_score}/100)")
+                                else:
+                                    logger.warning(f"  ✗ Failed to save evaluation")
+                            else:
+                                logger.warning(f"  ✗ Evaluation failed")
                         else:
-                            logger.warning(f"  ✗ Failed to fetch details for {ref['key']}")
+                            logger.warning(f"  ✗ Failed to save article to DB")
+                        
+                        # Discard full content from memory
+                        del full_content
                         
                         # Rate limiting between requests
                         delay = config.get_collection_settings().get("request_delay_seconds", 1.0)
@@ -158,18 +204,18 @@ class DailyBatchProcessor:
                         
                         # Progress checkpoint every 10 articles
                         if (i + 1) % 10 == 0:
-                            logger.info(f"Progress: {i+1}/{len(new_article_refs)} articles processed")
+                            logger.info(f"Progress: {i+1}/{len(new_article_refs)} articles processed, {evaluations_count} evaluations completed")
                         
                     except Exception as e:
-                        logger.error(f"  ✗ Error fetching article {ref['key']}: {e}")
+                        logger.error(f"  ✗ Error processing article {ref['key']}: {e}")
                         continue
                 
-                logger.info(f"Successfully collected {len(articles)} articles with full details")
-                return articles
+                logger.info(f"Streaming processing completed: {evaluations_count} articles evaluated successfully")
+                return evaluations_count
             
         except Exception as e:
-            logger.error(f"Article collection failed: {e}")
-            return []
+            logger.error(f"Streaming collection and evaluation failed: {e}")
+            return 0
     
     async def _collect_articles(self) -> list:
         """Legacy method - redirects to two-phase collection.

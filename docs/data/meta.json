@@ -1,14 +1,14 @@
 {
-  "lastUpdated": "2025-06-13T00:02:59+09:00",
+  "lastUpdated": "2025-06-13T13:04:34.661622",
   "version": "1.0.0",
   "systemInfo": {
-    "totalArticles": 5,
-    "evaluatedArticles": 5,
+    "totalArticles": 1,
+    "evaluatedArticles": 0,
     "websiteUrl": "https://meron14725.github.io/note-columns-post-bot",
     "githubRepo": "https://github.com/meron14725/note-columns-post-bot"
   },
   "buildInfo": {
-    "buildTime": "2025-06-13T00:02:59+09:00",
+    "buildTime": "2025-06-13T13:04:34.661632",
     "generator": "entertainment-column-system"
   }
 }

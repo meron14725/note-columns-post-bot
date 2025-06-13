@@ -74,18 +74,47 @@ class ArticleEvaluator:
         logger.info(f"Completed evaluation: {len(evaluations)}/{total_articles} articles successfully evaluated")
         return evaluations
     
-    async def _evaluate_single_article(self, article: Article) -> Optional[Evaluation]:
+    async def evaluate_article_with_full_content(self, article: Article, full_content: str) -> Optional[Evaluation]:
+        """Evaluate a single article with provided full content (streaming evaluation).
+        
+        Args:
+            article: Article to evaluate (without full content)
+            full_content: Full article content text
+            
+        Returns:
+            Evaluation result or None if failed
+        """
+        try:
+            # Apply rate limiting
+            await rate_limiter.await_if_needed("groq")
+            
+            evaluation = await self._evaluate_single_article(article, full_content)
+            
+            if evaluation:
+                rate_limiter.record_request("groq")
+                logger.debug(f"Streaming evaluation completed for: {article.title}")
+                return evaluation
+            else:
+                logger.warning(f"Streaming evaluation failed for: {article.title}")
+                
+        except Exception as e:
+            logger.error(f"Error in streaming evaluation for {article.title}: {e}")
+        
+        return None
+    
+    async def _evaluate_single_article(self, article: Article, full_content: Optional[str] = None) -> Optional[Evaluation]:
         """Evaluate a single article.
         
         Args:
             article: Article to evaluate
+            full_content: Full content text (for streaming evaluation)
             
         Returns:
             Evaluation result or None if failed
         """
         try:
             # Prepare content for evaluation
-            content_text = self._prepare_content_for_evaluation(article)
+            content_text = self._prepare_content_for_evaluation(article, full_content)
             
             # Generate evaluation prompt
             prompt = self._generate_evaluation_prompt(article, content_text)
@@ -101,17 +130,18 @@ class ArticleEvaluator:
         
         return None
     
-    def _prepare_content_for_evaluation(self, article: Article) -> str:
+    def _prepare_content_for_evaluation(self, article: Article, full_content: Optional[str] = None) -> str:
         """Prepare article content for evaluation.
         
         Args:
             article: Article to prepare
+            full_content: Full content text (for streaming evaluation)
             
         Returns:
             Prepared content text
         """
-        # Use content preview if available, otherwise use title
-        content = article.content_preview or ""
+        # Use provided full content for streaming evaluation, otherwise fallback to preview
+        content = full_content or article.content_preview or ""
         
         # Clean up content
         if content:
@@ -119,8 +149,8 @@ class ArticleEvaluator:
             content = re.sub(r'<[^>]+>', '', content)
             # Remove excessive whitespace
             content = re.sub(r'\s+', ' ', content).strip()
-            # Limit length
-            content = content[:500]
+            # Limit length for API (keep reasonable limit for cost/performance)
+            content = content[:4000]  # Increased to use more content for better evaluation
         
         # If no content, use just the title
         if not content:

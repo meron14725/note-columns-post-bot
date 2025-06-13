@@ -29,7 +29,7 @@ class RateLimiter:
         self.request_times: deque = deque()
         self.daily_count = 0
         self.last_reset_date = time.strftime("%Y-%m-%d")
-        self._lock = asyncio.Lock() if asyncio.iscoroutinefunction(self._wait_if_needed) else None
+        self._lock = asyncio.Lock()
     
     def _reset_daily_counter_if_needed(self) -> None:
         """Reset daily counter if it's a new day."""

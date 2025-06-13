@@ -77,6 +77,9 @@ async def test_article_detail_fetch():
             logger.info(f"  Published: {article.published_at}")
             logger.info(f"  Category: {article.category}")
             logger.info(f"  Preview length: {len(article.content_preview)} chars")
+            if hasattr(article, 'content_full') and article.content_full:
+                logger.info(f"  Full content length: {len(article.content_full)} chars")
+                logger.info(f"  Full content sample: {article.content_full[:100]}...")
             if article.note_data:
                 logger.info(f"  Like count: {article.note_data.like_count}")
                 logger.info(f"  Comment count: {article.note_data.comment_count}")

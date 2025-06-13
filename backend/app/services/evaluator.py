@@ -110,8 +110,8 @@ class ArticleEvaluator:
         Returns:
             Prepared content text
         """
-        # Use content preview if available, otherwise use title
-        content = article.content_preview or ""
+        # Use full content if available, otherwise fallback to preview
+        content = getattr(article, 'content_full', None) or article.content_preview or ""
         
         # Clean up content
         if content:
@@ -119,8 +119,8 @@ class ArticleEvaluator:
             content = re.sub(r'<[^>]+>', '', content)
             # Remove excessive whitespace
             content = re.sub(r'\s+', ' ', content).strip()
-            # Limit length
-            content = content[:500]
+            # Limit length for API (keep reasonable limit for cost/performance)
+            content = content[:3000]  # Increased from 500 to 3000 for better evaluation
         
         # If no content, use just the title
         if not content:

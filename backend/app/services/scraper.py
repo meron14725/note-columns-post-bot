@@ -1152,6 +1152,8 @@ class NoteScraper:
                 author_match = re.search(r'｜([^｜]+)$', og_title_text)
                 if author_match:
                     author = author_match.group(1)
+                    # Remove any remaining suffix like "|副業" etc.
+                    author = re.sub(r'｜.+$', '', author)
             
             # Method 2: From URL path
             urlname = 'unknown'
@@ -1213,8 +1215,9 @@ class NoteScraper:
                     except:
                         pass
             
-            # Extract content preview
+            # Extract content (both preview and full text)
             content_preview = ''
+            content_full = ''
             
             # Look for main content area
             content_selectors = [
@@ -1229,7 +1232,9 @@ class NoteScraper:
             for selector in content_selectors:
                 content_element = soup.select_one(selector)
                 if content_element:
-                    content_preview = content_element.get_text(strip=True)[:200]
+                    full_text = content_element.get_text(strip=True)
+                    content_preview = full_text[:200]  # Preview for display
+                    content_full = full_text  # Full text for AI evaluation
                     break
             
             # Fallback to meta description
@@ -1255,6 +1260,7 @@ class NoteScraper:
                 'can_read': True,
                 'published_at': published_at,
                 'content_preview': content_preview,
+                'content_full': content_full,
             }
             
         except Exception as e:
@@ -1303,6 +1309,7 @@ class NoteScraper:
                 author=detail.get('author', 'Unknown'),
                 category='article',  # Default category
                 content_preview=detail.get('content_preview', ''),
+                content_full=detail.get('content_full', ''),
                 note_data=NoteArticleData(
                     note_type=detail.get('type', 'TextNote'),
                     comment_count=detail.get('comment_count', 0)

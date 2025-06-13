@@ -27,7 +27,12 @@
       "Bash(gh pr create:*)",
       "Bash(find:*)",
       "Bash(mv:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr:*)",
+      "Bash(PYTHONPATH=. python3 scripts/calculate_data_size.py)",
+      "Bash(PYTHONPATH=. python3 scripts/test_streaming_evaluation.py)",
+      "Bash(PYTHONPATH=. python3 scripts/test_streaming_daily_batch.py)"
     ],
     "deny": []
   }

@@ -19,6 +19,56 @@
       "name": "ジャズ",
       "url": "https://note.com/interests/%E3%82%B8%E3%83%A3%E3%82%BA",
       "category": "ジャズ"
+    },
+    {
+      "name": "映画",
+      "url": "https://note.com/interests/%E6%98%A0%E7%94%BB",
+      "category": "映画"
+    },
+    {
+      "name": "ドラマ",
+      "url": "https://note.com/interests/%E3%83%89%E3%83%A9%E3%83%9E",
+      "category": "ドラマ"
+    },
+    {
+      "name": "アニメ",
+      "url": "https://note.com/interests/%E3%82%A2%E3%83%8B%E3%83%A1",
+      "category": "アニメ"
+    },
+    {
+      "name": "ゲーム",
+      "url": "https://note.com/interests/%E3%82%B2%E3%83%BC%E3%83%A0",
+      "category": "ゲーム"
+    },
+    {
+      "name": "マンガ",
+      "url": "https://note.com/interests/%E3%83%9E%E3%83%B3%E3%82%AC",
+      "category": "マンガ"
+    },
+    {
+      "name": "芸能",
+      "url": "https://note.com/interests/%E8%8A%B8%E8%83%BD",
+      "category": "芸能"
+    },
+    {
+      "name": "お笑い",
+      "url": "https://note.com/interests/%E3%81%8A%E7%AC%91%E3%81%84",
+      "category": "お笑い"
+    },
+    {
+      "name": "舞台",
+      "url": "https://note.com/interests/%E8%88%9E%E5%8F%B0",
+      "category": "舞台"
+    },
+    {
+      "name": "読書",
+      "url": "https://note.com/interests/%E8%AA%AD%E6%9B%B8",
+      "category": "読書"
+    },
+    {
+      "name": "アイドル",
+      "url": "https://note.com/interests/%E3%82%A2%E3%82%A4%E3%83%89%E3%83%AB",
+      "category": "アイドル"
     }
   ],
   "collection_settings": {

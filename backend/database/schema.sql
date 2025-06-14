@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS articles (
     category TEXT NOT NULL,             -- category (entertainment)
     collected_at DATETIME DEFAULT CURRENT_TIMESTAMP,  -- collection timestamp
     is_evaluated BOOLEAN DEFAULT FALSE, -- evaluation flag
+    is_excluded BOOLEAN DEFAULT FALSE,  -- exclusion flag for quality control
+    exclusion_reason TEXT,              -- reason for exclusion (if excluded)
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

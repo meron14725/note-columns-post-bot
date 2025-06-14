@@ -259,6 +259,22 @@ Issue解決中に新たな問題が発生した場合：
 - **修正**: 非同期呼び出しを同期呼び出しに修正
 - **ファイル**: `backend/batch/daily_process_improved.py`
 
+### Sub Issue #13: note記事リンク大量貼り付け記事の除外機能 (2025-06-15)
+- **問題**: note記事内に他のnote記事リンクが4つ以上ある品質の悪い記事を除外する必要がある
+- **要件**: AI評価前にnote.comリンクが4つ以上あったら評価対象外としてDB保存
+- **実装内容**:
+  - `ContentQualityChecker`クラス作成でnote.comリンク検出・除外判定
+  - データベースに`is_excluded`、`exclusion_reason`列追加
+  - スクレイパーでコンテンツ品質チェック機能追加
+  - 日次処理で除外記事のAI評価スキップ処理追加
+- **修正ファイル**:
+  - `backend/app/utils/content_quality.py` (新規作成)
+  - `backend/app/models/article.py` (除外フィールド追加)
+  - `backend/app/repositories/article_repository.py` (除外処理追加)
+  - `backend/app/services/scraper.py` (品質チェック追加)
+  - `backend/batch/daily_process.py` (除外ロジック追加)
+  - `backend/database/schema.sql` (除外列追加)
+
 7. 運用・保守
 
 ログファイル：logs/ディレクトリに日付別保存

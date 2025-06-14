@@ -31,8 +31,9 @@ class ArticleRepository:
             query = """
                 INSERT OR REPLACE INTO articles 
                 (id, title, url, thumbnail, published_at, author, content_preview, 
-                 category, collected_at, is_evaluated, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 category, collected_at, is_evaluated, is_excluded, exclusion_reason,
+                 created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
             
             params = (
@@ -46,6 +47,8 @@ class ArticleRepository:
                 article.category,
                 article.collected_at.isoformat(),
                 article.is_evaluated,
+                article.is_excluded,
+                article.exclusion_reason,
                 article.created_at.isoformat(),
                 article.updated_at.isoformat(),
             )
@@ -75,8 +78,9 @@ class ArticleRepository:
         query = """
             INSERT OR REPLACE INTO articles 
             (id, title, url, thumbnail, published_at, author, content_preview, 
-             category, collected_at, is_evaluated, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             category, collected_at, is_evaluated, is_excluded, exclusion_reason,
+             created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
         
         param_list = []
@@ -92,6 +96,8 @@ class ArticleRepository:
                 article.category,
                 article.collected_at.isoformat(),
                 article.is_evaluated,
+                article.is_excluded,
+                article.exclusion_reason,
                 article.created_at.isoformat(),
                 article.updated_at.isoformat(),
             )
@@ -126,7 +132,7 @@ class ArticleRepository:
         return None
     
     def get_unevaluated_articles(self, limit: Optional[int] = None) -> List[Article]:
-        """Get articles that haven't been evaluated.
+        """Get articles that haven't been evaluated and are not excluded.
         
         Args:
             limit: Maximum number of articles to return
@@ -136,7 +142,7 @@ class ArticleRepository:
         """
         query = """
             SELECT * FROM articles 
-            WHERE is_evaluated = FALSE 
+            WHERE is_evaluated = FALSE AND is_excluded = FALSE
             ORDER BY published_at DESC
         """
         
@@ -215,6 +221,32 @@ class ArticleRepository:
             return affected_rows > 0
         except Exception as e:
             logger.error(f"Failed to mark article {article_id} as evaluated: {e}")
+            return False
+    
+    def mark_as_excluded(self, article_id: str, exclusion_reason: str) -> bool:
+        """Mark article as excluded from evaluation.
+        
+        Args:
+            article_id: Article ID
+            exclusion_reason: Reason for exclusion
+            
+        Returns:
+            True if updated successfully
+        """
+        query = """
+            UPDATE articles 
+            SET is_excluded = TRUE, exclusion_reason = ?, updated_at = ? 
+            WHERE id = ?
+        """
+        
+        try:
+            affected_rows = self.db.execute_update(
+                query, 
+                (exclusion_reason, datetime.now().isoformat(), article_id)
+            )
+            return affected_rows > 0
+        except Exception as e:
+            logger.error(f"Failed to mark article {article_id} as excluded: {e}")
             return False
     
     def get_articles_with_evaluations(
@@ -315,6 +347,8 @@ class ArticleRepository:
             category=row['category'],
             collected_at=datetime.fromisoformat(row['collected_at']),
             is_evaluated=bool(row['is_evaluated']),
+            is_excluded=bool(row.get('is_excluded', False)),
+            exclusion_reason=row.get('exclusion_reason'),
             created_at=datetime.fromisoformat(row['created_at']),
             updated_at=datetime.fromisoformat(row['updated_at']),
         )

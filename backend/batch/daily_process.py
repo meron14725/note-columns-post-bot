@@ -12,7 +12,9 @@ from backend.app.services.evaluator import ArticleEvaluator
 from backend.app.services.json_generator import JSONGenerator
 from backend.app.repositories.article_repository import ArticleRepository
 from backend.app.repositories.evaluation_repository import EvaluationRepository
+from backend.app.repositories.article_reference_repository import ArticleReferenceRepository
 from backend.app.models.article import Article, NoteArticleMetadata
+from backend.app.models.article_reference import ArticleReference
 from backend.app.utils.logger import setup_logger, log_execution_time
 from backend.app.utils.database import db_manager
 from config.config import config, validate_required_env_vars, ensure_directories
@@ -27,6 +29,7 @@ class DailyBatchProcessor:
         """Initialize processor."""
         self.article_repo = ArticleRepository()
         self.evaluation_repo = EvaluationRepository()
+        self.article_ref_repo = ArticleReferenceRepository()
         self.json_generator = JSONGenerator()
         
         # Validate configuration
@@ -161,6 +164,8 @@ class DailyBatchProcessor:
                             author=article_detail.get('author', ref['author']),
                             content_preview=article_detail.get('content_preview', ''),
                             category=ref.get('category', 'article'),
+                            is_excluded=article_detail.get('is_excluded', False),
+                            exclusion_reason=article_detail.get('exclusion_reason'),
                             note_data=NoteArticleMetadata(
                                 note_type=article_detail.get('type', 'TextNote'),
                                 comment_count=article_detail.get('comment_count', 0),
@@ -176,22 +181,28 @@ class DailyBatchProcessor:
                         if saved_count > 0:
                             logger.info(f"  ✓ Saved article to DB (preview: {len(article_for_db.content_preview or '')} chars)")
                             
-                            # Evaluate with full content
-                            logger.info(f"  🤖 Evaluating with full content ({len(full_content)} chars)...")
-                            evaluation = await evaluator.evaluate_article_with_full_content(article_for_db, full_content)
-                            
-                            if evaluation:
-                                # Save evaluation
-                                eval_saved = self.evaluation_repo.save_evaluations([evaluation])
-                                if eval_saved > 0:
-                                    # Mark article as evaluated
-                                    self.article_repo.mark_as_evaluated(article_for_db.id)
-                                    evaluations_count += 1
-                                    logger.info(f"  ✅ Evaluation completed (score: {evaluation.total_score}/100)")
-                                else:
-                                    logger.warning(f"  ✗ Failed to save evaluation")
+                            # Check if article is excluded from evaluation
+                            if article_for_db.is_excluded:
+                                logger.info(f"  🚫 Article excluded from evaluation: {article_for_db.exclusion_reason}")
+                                # Mark as evaluated without actually evaluating (to prevent future processing)
+                                self.article_repo.mark_as_evaluated(article_for_db.id)
                             else:
-                                logger.warning(f"  ✗ Evaluation failed")
+                                # Evaluate with full content
+                                logger.info(f"  🤖 Evaluating with full content ({len(full_content)} chars)...")
+                                evaluation = await evaluator.evaluate_article_with_full_content(article_for_db, full_content)
+                                
+                                if evaluation:
+                                    # Save evaluation
+                                    eval_saved = self.evaluation_repo.save_evaluations([evaluation])
+                                    if eval_saved > 0:
+                                        # Mark article as evaluated
+                                        self.article_repo.mark_as_evaluated(article_for_db.id)
+                                        evaluations_count += 1
+                                        logger.info(f"  ✅ Evaluation completed (score: {evaluation.total_score}/100)")
+                                    else:
+                                        logger.warning(f"  ✗ Failed to save evaluation")
+                                else:
+                                    logger.warning(f"  ✗ Evaluation failed")
                         else:
                             logger.warning(f"  ✗ Failed to save article to DB")
                         

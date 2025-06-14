@@ -29,6 +29,8 @@ class Article(BaseModel):
     category: str = Field(..., description="Article category")
     collected_at: datetime = Field(default_factory=datetime.now, description="Collection timestamp")
     is_evaluated: bool = Field(False, description="Evaluation status flag")
+    is_excluded: bool = Field(False, description="Exclusion flag for quality control")
+    exclusion_reason: Optional[str] = Field(None, description="Reason for exclusion (if excluded)")
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
     note_data: Optional[NoteArticleMetadata] = Field(None, description="Note specific metadata")
@@ -98,6 +100,8 @@ class ArticleResponse(BaseModel):
     category: str
     collected_at: datetime
     is_evaluated: bool
+    is_excluded: bool = False
+    exclusion_reason: Optional[str] = None
     total_score: Optional[int] = None
     ai_summary: Optional[str] = None
     note_data: Optional[NoteArticleMetadata] = None

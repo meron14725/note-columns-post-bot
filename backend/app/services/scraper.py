@@ -18,6 +18,7 @@ from backend.app.models.article import (
 )
 from backend.app.utils.logger import get_logger, log_execution_time
 from backend.app.utils.rate_limiter import rate_limiter
+from backend.app.utils.content_quality import ContentQualityChecker
 from config.config import config 
 
 logger = get_logger(__name__)
@@ -42,6 +43,7 @@ class NoteScraper:
         })
         self.client_code = None
         self.xsrf_token = None
+        self.quality_checker = ContentQualityChecker()
         
     async def __aenter__(self):
         """Async context manager entry."""
@@ -1084,16 +1086,34 @@ class NoteScraper:
             
             detail['published_at'] = published_at
             
-            # Extract content preview
+            # Extract content preview and check quality
             content_preview = ''
+            full_content = ''
+            should_exclude = False
+            exclusion_reason = ''
+            
             if 'body' in note:
-                # Remove HTML tags and get first 200 characters
-                body_text = BeautifulSoup(note['body'], 'html.parser').get_text()
+                # Get full body content for quality checking
+                full_content = note['body']
+                # Remove HTML tags and get first 200 characters for preview
+                body_text = BeautifulSoup(full_content, 'html.parser').get_text()
                 content_preview = body_text[:200]
+                
+                # Check content quality (note.com link spam)
+                should_exclude, exclusion_reason = self.quality_checker.check_content_quality(
+                    full_content, 
+                    detail.get('title', '')
+                )
+                
+                if should_exclude:
+                    logger.info(f"Article {key} excluded: {exclusion_reason}")
+                
             elif 'description' in note:
                 content_preview = note['description'][:200]
             
             detail['content_preview'] = content_preview
+            detail['is_excluded'] = should_exclude
+            detail['exclusion_reason'] = exclusion_reason if should_exclude else None
             
             return detail
             
@@ -1316,6 +1336,8 @@ class NoteScraper:
                 author=detail.get('author', 'Unknown'),
                 category='article',  # Default category
                 content_preview=detail.get('content_preview', ''),
+                is_excluded=detail.get('is_excluded', False),
+                exclusion_reason=detail.get('exclusion_reason'),
                 note_data=NoteArticleData(
                     note_type=detail.get('type', 'TextNote'),
                     comment_count=detail.get('comment_count', 0)

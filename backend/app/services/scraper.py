@@ -191,7 +191,9 @@ class NoteScraper:
             if '/interests/' in base_url:
                 label_match = re.search(r'/interests/([^/?]+)', base_url)
                 if label_match:
-                    label_name = label_match.group(1)
+                    from urllib.parse import unquote
+                    encoded_label = label_match.group(1)
+                    label_name = unquote(encoded_label)  # URLデコードして日本語に戻す
                     logger.info(f"Extracted label name: {label_name}")
             
             # Fetch article list using API
@@ -231,14 +233,15 @@ class NoteScraper:
         
         for page in range(1, max_pages + 1):
             try:
-                # Build API URL
-                api_url = f"https://note.com/api/v3/mkit_layouts/json?context=top_keyword&page={page}&args[label_name]={quote(label_name)}"
+                # Build API URL with proper encoding
+                encoded_label = quote(label_name, safe='')
+                api_url = f"https://note.com/api/v3/mkit_layouts/json?context=top_keyword&page={page}&args[label_name]={encoded_label}"
                 
                 # Update headers with tokens
                 headers = {
                     **self.session.headers,
                     "X-Note-Client-Code": self.client_code,
-                    "Referer": f"https://note.com/interests/{label_name}",
+                    "Referer": f"https://note.com/interests/{encoded_label}",
                     "Sec-Fetch-Dest": "empty",
                     "Sec-Fetch-Mode": "cors",
                     "Sec-Fetch-Site": "same-origin",
@@ -475,7 +478,9 @@ class NoteScraper:
             if '/interests/' in base_url:
                 label_match = re.search(r'/interests/([^/?]+)', base_url)
                 if label_match:
-                    label_name = label_match.group(1)
+                    from urllib.parse import unquote
+                    encoded_label = label_match.group(1)
+                    label_name = unquote(encoded_label)  # URLデコードして日本語に戻す
                     logger.info(f"Extracted label name: {label_name}")
             
             # Fetch articles using API
@@ -515,14 +520,15 @@ class NoteScraper:
         
         for page in range(1, max_pages + 1):
             try:
-                # Build API URL
-                api_url = f"https://note.com/api/v3/mkit_layouts/json?context=top_keyword&page={page}&args[label_name]={quote(label_name)}"
+                # Build API URL with proper encoding
+                encoded_label = quote(label_name, safe='')
+                api_url = f"https://note.com/api/v3/mkit_layouts/json?context=top_keyword&page={page}&args[label_name]={encoded_label}"
                 
                 # Update headers with tokens
                 headers = {
                     **self.session.headers,
                     "X-Note-Client-Code": self.client_code,
-                    "Referer": f"https://note.com/interests/{label_name}",
+                    "Referer": f"https://note.com/interests/{encoded_label}",
                     "Sec-Fetch-Dest": "empty",
                     "Sec-Fetch-Mode": "cors",
                     "Sec-Fetch-Site": "same-origin",

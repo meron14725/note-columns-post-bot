@@ -21,6 +21,25 @@ CREATE INDEX IF NOT EXISTS idx_articles_published_at ON articles(published_at);
 CREATE INDEX IF NOT EXISTS idx_articles_is_evaluated ON articles(is_evaluated);
 CREATE INDEX IF NOT EXISTS idx_articles_category ON articles(category);
 
+-- Article references table: stores collected article references (key + urlname) for deduplication
+CREATE TABLE IF NOT EXISTS article_references (
+    key TEXT NOT NULL,                      -- note article key
+    urlname TEXT NOT NULL,                  -- note article urlname
+    category TEXT NOT NULL,                 -- collection source category
+    title TEXT,                            -- article title
+    author TEXT,                           -- article author
+    thumbnail TEXT,                        -- thumbnail URL
+    published_at DATETIME,                 -- publication date
+    collected_at DATETIME DEFAULT CURRENT_TIMESTAMP,  -- collection timestamp
+    is_processed BOOLEAN DEFAULT FALSE,    -- whether article details have been processed
+    PRIMARY KEY (key, urlname)             -- composite primary key for uniqueness
+);
+
+-- Indexes for article_references table
+CREATE INDEX IF NOT EXISTS idx_article_refs_category ON article_references(category);
+CREATE INDEX IF NOT EXISTS idx_article_refs_collected_at ON article_references(collected_at);
+CREATE INDEX IF NOT EXISTS idx_article_refs_is_processed ON article_references(is_processed);
+
 -- Evaluations table: stores AI evaluation results
 CREATE TABLE IF NOT EXISTS evaluations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

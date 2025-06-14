@@ -1291,8 +1291,9 @@ class NoteScraper:
         try:
             # Get session tokens if not already obtained
             if not self.client_code:
-                base_url = f"https://note.com/{urlname}"
-                if not self._get_session_tokens(base_url):
+                # Use the actual article URL to get tokens, not the user profile page
+                article_url = f"https://note.com/{urlname}/n/{key}"
+                if not self._get_session_tokens(article_url):
                     logger.error("Failed to get session tokens")
                     return None
             

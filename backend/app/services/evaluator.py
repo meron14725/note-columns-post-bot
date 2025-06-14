@@ -240,6 +240,9 @@ class ArticleEvaluator:
             json_str = json_match.group()
             data = json.loads(json_str)
             
+            # Apply data validation and fallbacks
+            data = self._validate_and_fix_response_data(data)
+            
             # Validate and create result
             result = AIEvaluationResult(**data)
             
@@ -266,6 +269,43 @@ class ArticleEvaluator:
             logger.debug(f"Response content: {content}")
         except Exception as e:
             logger.error(f"Error parsing AI response: {e}")
+            logger.debug(f"Response content: {content}")
+    
+    def _validate_and_fix_response_data(self, data: dict) -> dict:
+        """Validate and fix AI response data.
+        
+        Args:
+            data: Raw response data from AI
+            
+        Returns:
+            Validated and fixed data
+        """
+        # Ensure all required fields exist with default values
+        if 'quality_score' not in data:
+            logger.warning("Missing quality_score, using default: 20")
+            data['quality_score'] = 20
+        
+        if 'originality_score' not in data:
+            logger.warning("Missing originality_score, using default: 15")
+            data['originality_score'] = 15
+        
+        if 'entertainment_score' not in data:
+            logger.warning("Missing entertainment_score, using default: 15")
+            data['entertainment_score'] = 15
+        
+        if 'ai_summary' not in data:
+            logger.warning("Missing ai_summary, using default")
+            data['ai_summary'] = "AI評価の詳細が取得できませんでした。"
+        
+        # Ensure ai_summary is within length limit (300 characters)
+        if len(data['ai_summary']) > 300:
+            logger.warning(f"AI summary too long ({len(data['ai_summary'])} chars), truncating to 300")
+            data['ai_summary'] = data['ai_summary'][:297] + "..."
+        
+        # Calculate total_score
+        data['total_score'] = data['quality_score'] + data['originality_score'] + data['entertainment_score']
+        
+        return data
         
         return None
     

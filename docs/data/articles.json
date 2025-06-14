@@ -1,261 +1,176 @@
 {
-  "lastUpdated": "2025-06-14T13:06:00.469015",
-  "total": 15,
+  "lastUpdated": "2025-06-15T01:29:39.959645",
+  "total": 10,
   "articles": [
     {
-      "id": "unknown",
-      "title": "毎週ショートショートnote【告りびと】",
-      "url": "https://note.com/klaviersonate82/n/n4aca95652b2c",
-      "thumbnail": "https://assets.st-note.com/production/uploads/images/194898409/rectangle_large_type_2_27bb19439943059e875c9826aaf868ca.png?fit=bounds&quality=85&width=1280",
-      "author": "猫を想う（_,'\" ▽ \"）",
-      "published_at": "2025-06-13T18:57:24+09:00",
-      "category": "洋楽",
+      "id": "dancingdoctor_n72000c715eab",
+      "title": "誰もが、フロントライン だった【映画『フロントライン』ある救急医の感想 ※ネタバレなし】｜三谷雄己",
+      "url": "https://note.com/dancingdoctor/n/n72000c715eab",
+      "thumbnail": "https://assets.st-note.com/production/uploads/images/196082705/rectangle_large_type_2_968939c4b86469624d4182f752f044be.jpeg?fit=bounds&quality=85&width=1280",
+      "author": "綴る救急医",
+      "published_at": "2025-06-14T17:44:05+09:00",
+      "category": "映画",
+      "total_score": 79,
+      "scores": {
+        "quality": 32,
+        "originality": 22,
+        "entertainment": 25
+      },
+      "ai_summary": "救急医の体験を基に、新型コロナウイルス感染症との戦いのリアリティを描く映画『フロントライン』の感想を綴りました。医療者の葛藤や家族の苦悩をリアルに描き、フロントラインでの戦いの実感を強く伝える作品です。",
+      "evaluated_at": "2025-06-15T01:20:03.159683"
+    },
+    {
+      "id": "blue_green_corgi_n0bfb0bed7bd2",
+      "title": "【映画感想】南国スパルタ教育映画『モアナと伝説の海2』",
+      "url": "https://note.com/blue_green_corgi/n/n0bfb0bed7bd2",
+      "thumbnail": "https://assets.st-note.com/production/uploads/images/196042948/rectangle_large_type_2_aa5ba5be16c5d341f42ec0d6e40aba80.png?fit=bounds&quality=85&width=1280",
+      "author": "犬",
+      "published_at": "2025-06-14T13:59:49+09:00",
+      "category": "映画",
       "total_score": 75,
       "scores": {
         "quality": 28,
         "originality": 22,
         "entertainment": 25
       },
-      "ai_summary": "藤井風の新曲「Hachikō」リリース！ファンを熱狂させるダンサブルな曲とMVに、近未来的な演出が目立つ。歌詞には生死を超えて繋がる愛のストーリーが描かれ、風さんのコメントも感動的。FK3の新曲リリースに、ファンの思いやりも忘れられない。",
-      "evaluated_at": "2025-06-14T13:02:08.520993"
+      "ai_summary": "ディズニー映画の皮をかぶった激スパルタ映画』！『モアナ2』は、勇者モアナが海の呪いを解く使命に立ち向かう、真正面から殴ってくるスパルタ教育映画」！音楽も最高で、頼りない味方が成長する展開もアツい！土曜日の朝をゆったり過ごそうと思ってたのに、背筋を伸ばして観た！",
+      "evaluated_at": "2025-06-15T01:19:52.717020"
     },
     {
-      "id": "unknown",
-      "title": "毎週ショートショートnote【告りびと】",
-      "url": "https://note.com/klaviersonate82/n/n4aca95652b2c",
-      "thumbnail": "https://assets.st-note.com/production/uploads/images/194898409/rectangle_large_type_2_27bb19439943059e875c9826aaf868ca.png?fit=bounds&quality=85&width=1280",
-      "author": "猫を想う（_,'\" ▽ \"）",
-      "published_at": "2025-06-13T18:57:24+09:00",
-      "category": "洋楽",
+      "id": "anime_keizoku_ndfc4773406c7",
+      "title": "アニメのキャラが、報われなかった努力を笑っていたから、私も笑えた",
+      "url": "https://note.com/anime_keizoku/n/ndfc4773406c7",
+      "thumbnail": "https://assets.st-note.com/production/uploads/images/195668175/rectangle_large_type_2_1c141a9b2014cb154d36cf04e13056e5.png?fit=bounds&quality=85&width=1280",
+      "author": "サイジョウ|アニメから継続のコツを学ぶnote",
+      "published_at": "2025-06-14T12:00:00+09:00",
+      "category": "アニメ",
       "total_score": 75,
       "scores": {
         "quality": 28,
         "originality": 22,
         "entertainment": 25
       },
-      "ai_summary": "ASIAN KUNG-FU GENERATIONの「梅雨 EP」を巡る、季節感溢れるプレイリスト。6曲の選曲は、梅雨の季節感と情緒に溢れた美しい曲ばかりで、繰り返す日々を受け容れて抱きしめる愛と包容力の側面を描く。最後の一節で、五月雨に擬えた悲しみが「いつかは泣き止む」未来を想うところまで辿り着くのは、何よりの救い。",
-      "evaluated_at": "2025-06-14T13:02:38.636058"
+      "ai_summary": "アニメキャラの笑顔が報われなかった努力を救ってくれる！自分自身の失敗も愛おしく思えるようになる。この記事は、読者を強く引き込む魅力がある。",
+      "evaluated_at": "2025-06-15T01:11:12.734347"
     },
     {
-      "id": "unknown",
-      "title": "毎週ショートショートnote【告りびと】",
-      "url": "https://note.com/klaviersonate82/n/n4aca95652b2c",
-      "thumbnail": "https://assets.st-note.com/production/uploads/images/194898409/rectangle_large_type_2_27bb19439943059e875c9826aaf868ca.png?fit=bounds&quality=85&width=1280",
-      "author": "猫を想う（_,'\" ▽ \"）",
-      "published_at": "2025-06-13T18:57:24+09:00",
-      "category": "洋楽",
+      "id": "eum_rhythm_n362208974526",
+      "title": "K-POP第5世代男性グループの印象を語る【第9弾：WHIB】｜ Eum(うむ)",
+      "url": "https://note.com/eum_rhythm/n/n362208974526",
+      "thumbnail": "https://assets.st-note.com/production/uploads/images/194921555/rectangle_large_type_2_51e3169993f8d11d9a2235204d279d08.jpg?fit=bounds&quality=85&width=1280",
+      "author": "MBTI×推し活×自己理解",
+      "published_at": "2025-06-14T11:30:00+09:00",
+      "category": "K-POP",
       "total_score": 75,
       "scores": {
         "quality": 28,
         "originality": 22,
         "entertainment": 25
       },
-      "ai_summary": "雨上がりの虹に架かる祝祭のメロディを奏でる！このコラムは、灰色の世界に希望の光を灯すことを提案する。小さな一歩が未来への道を開くというメッセージは、読者を強く引き込む。",
-      "evaluated_at": "2025-06-14T13:03:00.122416"
+      "ai_summary": "K-POP第5世代ボーイズグループWHIBの魅力的に紹介！デビュー前のニュースから、MVのパフォーマンスに惹かれ、ジェイダーくんの存在に気になる。WHIBのフレッシュさとパフォーマンスのキレが、K-POPらしいダンスナンバーを創り出している。",
+      "evaluated_at": "2025-06-15T01:11:11.276857"
     },
     {
-      "id": "unknown",
-      "title": "毎週ショートショートnote【告りびと】",
-      "url": "https://note.com/klaviersonate82/n/n4aca95652b2c",
-      "thumbnail": "https://assets.st-note.com/production/uploads/images/194898409/rectangle_large_type_2_27bb19439943059e875c9826aaf868ca.png?fit=bounds&quality=85&width=1280",
-      "author": "猫を想う（_,'\" ▽ \"）",
-      "published_at": "2025-06-13T18:57:24+09:00",
-      "category": "洋楽",
+      "id": "tenmame0720_nf202a3516019",
+      "title": "「あなたはいったい何者ですか？」映画『何者』に抉られた\"自意識地獄\"からの卒業",
+      "url": "https://note.com/tenmame0720/n/nf202a3516019",
+      "thumbnail": "https://assets.st-note.com/production/uploads/images/196004848/rectangle_large_type_2_070933e0a9c0dcebf38eed6974e97b51.png?fit=bounds&quality=85&width=1280",
+      "author": "天豆　てんまめ",
+      "published_at": "2025-06-14T09:43:27+09:00",
+      "category": "映画",
       "total_score": 75,
       "scores": {
         "quality": 28,
         "originality": 22,
         "entertainment": 25
       },
-      "ai_summary": "ドゥービー･ブラザーズの新作「Walk This Road」が待望のリリース！マイケル･マクドナルドが45年ぶりに参加したこのアルバムは、トム･ジョンストン、パット･シモンズ、ジョン･マクフィーらの豪華メンバーが集結した最高の作品。マイケルのスモーキー･ヴォイスやトムのアメリカン･ロックスタイルが炸裂！ドゥービー･ブラザーズのファン必見の新作です。",
-      "evaluated_at": "2025-06-14T13:04:04.639934"
+      "ai_summary": "映画『何者』に触発された天豆てんまめのエッセイは、自意識の呪縛から逃れることを問いかける。文章は、映画の世界に浸かりながら、自意識の暗い部分を探り、読者を強く引き込む。プロの文章家の技巧が光る。",
+      "evaluated_at": "2025-06-15T01:19:54.551175"
     },
     {
-      "id": "unknown",
-      "title": "毎週ショートショートnote【告りびと】",
-      "url": "https://note.com/klaviersonate82/n/n4aca95652b2c",
-      "thumbnail": "https://assets.st-note.com/production/uploads/images/194898409/rectangle_large_type_2_27bb19439943059e875c9826aaf868ca.png?fit=bounds&quality=85&width=1280",
-      "author": "猫を想う（_,'\" ▽ \"）",
-      "published_at": "2025-06-13T18:57:24+09:00",
-      "category": "洋楽",
+      "id": "joyous_ixora7237_n0e283f5c3e79",
+      "title": "大好きドラマ「アンメット」第4話：その8～麻衣ちゃんの懺悔",
+      "url": "https://note.com/joyous_ixora7237/n/n0e283f5c3e79",
+      "thumbnail": "https://assets.st-note.com/production/uploads/images/195968533/rectangle_large_type_2_fbcda5d383c174cf6e42503bfcf8796c.png?fit=bounds&quality=85&width=1280",
+      "author": "show-well",
+      "published_at": "2025-06-14T01:18:58+09:00",
+      "category": "ドラマ",
       "total_score": 75,
       "scores": {
         "quality": 28,
         "originality": 22,
         "entertainment": 25
       },
-      "ai_summary": "「好き」という感情を、説明する必要はないという主張。音楽や映画の話で、理由を求められがちだが、本当は自分の感覚に責任を持つことが大切ということを、心に響く文章で描く。",
-      "evaluated_at": "2025-06-14T13:04:30.709838"
+      "ai_summary": "ドラマ「アンメット」の第4話を熱く語るコラム！作者の熱い想像力と、ドラマの魅力的な描写に引き込まれる。特に大迫教授のキャラクター描写は秀逸！",
+      "evaluated_at": "2025-06-15T01:29:36.359592"
     },
     {
-      "id": "unknown",
-      "title": "毎週ショートショートnote【告りびと】",
-      "url": "https://note.com/klaviersonate82/n/n4aca95652b2c",
-      "thumbnail": "https://assets.st-note.com/production/uploads/images/194898409/rectangle_large_type_2_27bb19439943059e875c9826aaf868ca.png?fit=bounds&quality=85&width=1280",
-      "author": "猫を想う（_,'\" ▽ \"）",
-      "published_at": "2025-06-13T18:57:24+09:00",
-      "category": "洋楽",
-      "total_score": 75,
+      "id": "anime_keizoku_nb3ba1d34a2fd",
+      "title": "意味もなく、同じアニメのOPばかり見返してしまう",
+      "url": "https://note.com/anime_keizoku/n/nb3ba1d34a2fd",
+      "thumbnail": "https://assets.st-note.com/production/uploads/images/195666870/rectangle_large_type_2_1d47de3bed12a4c1b688a9bcf1d738b9.png?fit=bounds&quality=85&width=1280",
+      "author": "サイジョウ|アニメから継続のコツを学ぶnote",
+      "published_at": "2025-06-14T07:00:00+09:00",
+      "category": "アニメ",
+      "total_score": 74,
       "scores": {
         "quality": 28,
         "originality": 22,
-        "entertainment": 25
+        "entertainment": 24
       },
-      "ai_summary": " Foo Fightersの名曲を集めたこの記事は、グランジ王者の真の力をお確かめください！10曲の紹介文は、曲の特徴や魅力をわかりやすく伝えています。 Foo Fightersのファンには必見の記事です。",
-      "evaluated_at": "2025-06-14T13:04:53.593559"
+      "ai_summary": "アニメOPの繰り返し視聴を通じて、自分だけの感情や回復のしくみに気づけます。繰り返し見るアニメOPが、自分の心の状態に、あとから気づくこともある。説明のいらない継続の意味を見つめ直す、心に響くエンタメコラム。",
+      "evaluated_at": "2025-06-15T01:11:22.748849"
     },
     {
-      "id": "unknown",
-      "title": "毎週ショートショートnote【告りびと】",
-      "url": "https://note.com/klaviersonate82/n/n4aca95652b2c",
-      "thumbnail": "https://assets.st-note.com/production/uploads/images/194898409/rectangle_large_type_2_27bb19439943059e875c9826aaf868ca.png?fit=bounds&quality=85&width=1280",
-      "author": "猫を想う（_,'\" ▽ \"）",
-      "published_at": "2025-06-13T18:57:24+09:00",
-      "category": "洋楽",
-      "total_score": 62,
+      "id": "cozy_rhino3849_nab5988434b64",
+      "title": "子供K-POP育成で月10万円超安定収益！合格率3倍＆SNS集客完全攻略法",
+      "url": "https://note.com/cozy_rhino3849/n/nab5988434b64",
+      "thumbnail": "https://d2l930y2yx77uc.cloudfront.net/production/social_images/713bd1de651d951c25a5d012770738c2a185d54f.png",
+      "author": "パパに負けない副業＄月10万円",
+      "published_at": "2025-06-14T10:39:12+09:00",
+      "category": "K-POP",
+      "total_score": 68,
       "scores": {
         "quality": 28,
-        "originality": 16,
+        "originality": 22,
         "entertainment": 18
       },
-      "ai_summary": "雨の日の窓辺で、幼い頃の思い出が蘇る。星屑のステージのように美しい空の涙のようだった。雨音に揺れる心を描いた、心温まるエンタメコラム。",
-      "evaluated_at": "2025-06-14T13:02:01.146809"
+      "ai_summary": "夢を実現するための実践的な育成プログラム！子供の可能性をビジネスに変えるチャンス。韓流ブームで増えるキッズ練習生合格者数と保護者が惜しまない投資額。成功確率を大幅に上げる独自の適性診断メソッドと育成ロードマップ。安定収益化モデルまで、成功の全方位サポート。",
+      "evaluated_at": "2025-06-15T01:11:09.763652"
     },
     {
-      "id": "unknown",
-      "title": "毎週ショートショートnote【告りびと】",
-      "url": "https://note.com/klaviersonate82/n/n4aca95652b2c",
-      "thumbnail": "https://assets.st-note.com/production/uploads/images/194898409/rectangle_large_type_2_27bb19439943059e875c9826aaf868ca.png?fit=bounds&quality=85&width=1280",
-      "author": "猫を想う（_,'\" ▽ \"）",
-      "published_at": "2025-06-13T18:57:24+09:00",
-      "category": "洋楽",
-      "total_score": 62,
-      "scores": {
-        "quality": 28,
-        "originality": 14,
-        "entertainment": 20
-      },
-      "ai_summary": "80年代のソウル・ポップ・ロックの名曲「プライベート・アイズ」を、音楽愛好家が熱く語り尽くす！ダリル・ホール＆ジョン・オーツの代表作を、耳にしたことのある大名曲として紹介。曲の構成やMVのイメージまで、細部まで丁寧に描写。音楽ファン必見のエンタメコラム。",
-      "evaluated_at": "2025-06-14T13:03:42.739715"
-    },
-    {
-      "id": "unknown",
-      "title": "毎週ショートショートnote【告りびと】",
-      "url": "https://note.com/klaviersonate82/n/n4aca95652b2c",
-      "thumbnail": "https://assets.st-note.com/production/uploads/images/194898409/rectangle_large_type_2_27bb19439943059e875c9826aaf868ca.png?fit=bounds&quality=85&width=1280",
-      "author": "猫を想う（_,'\" ▽ \"）",
-      "published_at": "2025-06-13T18:57:24+09:00",
-      "category": "洋楽",
+      "id": "watarufunaki_nee0876d23f67",
+      "title": "マリノスが勝てば最下位脱出。アルビレックス新潟戦は「特別な」試合…トーマス・デンは初の古巣対決へ「しっかりとチームが向上できるゲームに」",
+      "url": "https://note.com/watarufunaki/n/nee0876d23f67",
+      "thumbnail": "https://assets.st-note.com/production/uploads/images/196102929/rectangle_large_type_2_fe24477d5bc6d2d3dc89e8fd15eb364f.png?fit=bounds&quality=85&width=1280",
+      "author": "舩木渉【#蹴鞠のトリコ】",
+      "published_at": "2025-06-14T19:43:02+09:00",
+      "category": "ゲーム",
       "total_score": 49,
       "scores": {
         "quality": 22,
         "originality": 12,
         "entertainment": 15
       },
-      "ai_summary": "音楽好き必見！邦楽の新たな発見のきっかけを提供するコラム。U2のアルバム制作秘話や、選りすぐりの邦楽アーティストを紹介。音楽に敏感な読者は要チェック！",
-      "evaluated_at": "2025-06-14T13:02:05.910570"
+      "ai_summary": "マリノスが勝てば最下位脱出のチャンス！新潟戦は「特別な」試合に。トーマス・デンが古巣対決に臨む。マリノスにとっては勝利だけを求める極めて重要な一戦。",
+      "evaluated_at": "2025-06-15T01:23:14.596146"
     },
     {
-      "id": "unknown",
-      "title": "毎週ショートショートnote【告りびと】",
-      "url": "https://note.com/klaviersonate82/n/n4aca95652b2c",
-      "thumbnail": "https://assets.st-note.com/production/uploads/images/194898409/rectangle_large_type_2_27bb19439943059e875c9826aaf868ca.png?fit=bounds&quality=85&width=1280",
-      "author": "猫を想う（_,'\" ▽ \"）",
-      "published_at": "2025-06-13T18:57:24+09:00",
-      "category": "洋楽",
-      "total_score": 48,
-      "scores": {
-        "quality": 22,
-        "originality": 12,
-        "entertainment": 14
-      },
-      "ai_summary": "雑食オタク ponpon が、野球、K-POP、ジャニーズなど多くのエンタメに熱狂する様子を、自らの「好き」の履歴書として綴りました。読者は、ponpon のオタクスタイルに触れて、共感することができます。",
-      "evaluated_at": "2025-06-14T13:01:55.932068"
-    },
-    {
-      "id": "unknown",
-      "title": "毎週ショートショートnote【告りびと】",
-      "url": "https://note.com/klaviersonate82/n/n4aca95652b2c",
-      "thumbnail": "https://assets.st-note.com/production/uploads/images/194898409/rectangle_large_type_2_27bb19439943059e875c9826aaf868ca.png?fit=bounds&quality=85&width=1280",
-      "author": "猫を想う（_,'\" ▽ \"）",
-      "published_at": "2025-06-13T18:57:24+09:00",
-      "category": "洋楽",
-      "total_score": 47,
-      "scores": {
-        "quality": 20,
-        "originality": 12,
-        "entertainment": 15
-      },
-      "ai_summary": "新曲発見のPlaylist！Housefull 5 OSTやsokodomo、GIRIBOYら人気アーティストの新曲をチェック！音楽ファンのための新発見のきっかけを提供します。",
-      "evaluated_at": "2025-06-14T13:03:07.990784"
-    },
-    {
-      "id": "unknown",
-      "title": "毎週ショートショートnote【告りびと】",
-      "url": "https://note.com/klaviersonate82/n/n4aca95652b2c",
-      "thumbnail": "https://assets.st-note.com/production/uploads/images/194898409/rectangle_large_type_2_27bb19439943059e875c9826aaf868ca.png?fit=bounds&quality=85&width=1280",
-      "author": "猫を想う（_,'\" ▽ \"）",
-      "published_at": "2025-06-13T18:57:24+09:00",
-      "category": "洋楽",
-      "total_score": 47,
-      "scores": {
-        "quality": 20,
-        "originality": 12,
-        "entertainment": 15
-      },
-      "ai_summary": "洋楽曲の「ハロー、グッバイ」シリーズを網羅したコラム！多くの曲を紹介しているが、個々の曲の説明や分析が不足している。読者は、曲のリストを眺めるだけでは満足しないだろう。",
-      "evaluated_at": "2025-06-14T13:03:19.170795"
-    },
-    {
-      "id": "unknown",
-      "title": "毎週ショートショートnote【告りびと】",
-      "url": "https://note.com/klaviersonate82/n/n4aca95652b2c",
-      "thumbnail": "https://assets.st-note.com/production/uploads/images/194898409/rectangle_large_type_2_27bb19439943059e875c9826aaf868ca.png?fit=bounds&quality=85&width=1280",
-      "author": "猫を想う（_,'\" ▽ \"）",
-      "published_at": "2025-06-13T18:57:24+09:00",
-      "category": "洋楽",
-      "total_score": 47,
-      "scores": {
-        "quality": 20,
-        "originality": 12,
-        "entertainment": 15
-      },
-      "ai_summary": "シンガポールのアーティストyeuleの音楽プロジェクトを紹介。日本のカルチャーに造詣が深い名前から、RPGファイナルファンタジーシリーズの影響を受けた音楽を期待できる。最新のアルバム「Evangelic Girl is a Gun」から「What3vr」を紹介。",
-      "evaluated_at": "2025-06-14T13:04:14.072707"
-    },
-    {
-      "id": "unknown",
-      "title": "毎週ショートショートnote【告りびと】",
-      "url": "https://note.com/klaviersonate82/n/n4aca95652b2c",
-      "thumbnail": "https://assets.st-note.com/production/uploads/images/194898409/rectangle_large_type_2_27bb19439943059e875c9826aaf868ca.png?fit=bounds&quality=85&width=1280",
-      "author": "猫を想う（_,'\" ▽ \"）",
-      "published_at": "2025-06-13T18:57:24+09:00",
-      "category": "洋楽",
+      "id": "meronpan_daisuki_ne753deb1835f",
+      "title": "【自己紹介】｜メロンパン｜ゲーム制作始めます！",
+      "url": "https://note.com/meronpan_daisuki/n/ne753deb1835f",
+      "thumbnail": "https://assets.st-note.com/production/uploads/images/196083280/rectangle_large_type_2_7cc2bf92eff826877f9c8d0db395e135.png?fit=bounds&quality=85&width=1280",
+      "author": "メロンパン",
+      "published_at": "2025-06-14T17:51:14+09:00",
+      "category": "ゲーム",
       "total_score": 46,
       "scores": {
         "quality": 20,
         "originality": 12,
         "entertainment": 14
       },
-      "ai_summary": "洋楽ファンのための究極の長い曲プレイリスト！６分を超える名曲15曲を集めたこのプレイリストは、音楽の深みに引き込むこと必至！",
-      "evaluated_at": "2025-06-14T13:03:28.626497"
-    },
-    {
-      "id": "unknown",
-      "title": "毎週ショートショートnote【告りびと】",
-      "url": "https://note.com/klaviersonate82/n/n4aca95652b2c",
-      "thumbnail": "https://assets.st-note.com/production/uploads/images/194898409/rectangle_large_type_2_27bb19439943059e875c9826aaf868ca.png?fit=bounds&quality=85&width=1280",
-      "author": "猫を想う（_,'\" ▽ \"）",
-      "published_at": "2025-06-13T18:57:24+09:00",
-      "category": "洋楽",
-      "total_score": 25,
-      "scores": {
-        "quality": 10,
-        "originality": 5,
-        "entertainment": 10
-      },
-      "ai_summary": "ボカロ系曲の紹介記事。235曲目のオリジナル曲と歌ってみたを紹介。初音ミクのファンには嬢しい内容だが、記事の構成や表現力に問題あり。",
-      "evaluated_at": "2025-06-14T13:02:03.587018"
+      "ai_summary": "鹿児島高専のインテリな学生が、ゲーム制作の夢に挑む！このnoteでは、ゲーム制作の進捗や、ゲームの楽しみ方を共有していく。",
+      "evaluated_at": "2025-06-15T01:23:11.384146"
     }
   ]
 }

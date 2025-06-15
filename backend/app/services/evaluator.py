@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import random
 import re
 from typing import List, Dict, Any, Optional
 
@@ -34,6 +35,9 @@ class ArticleEvaluator:
         self.prompt_settings = get_prompt_settings()
         self.evaluation_config = self.prompt_settings.get("evaluation_prompt", {})
         self.groq_settings = self.prompt_settings.get("groq_settings", {})
+        
+        # Track recent evaluations to detect duplicates
+        self.recent_evaluations = []
         
     @log_execution_time
     async def evaluate_articles(self, articles: List[Article]) -> List[Evaluation]:
@@ -120,7 +124,7 @@ class ArticleEvaluator:
             prompt = self._generate_evaluation_prompt(article, content_text)
             
             # Call Groq API
-            ai_result = await self._call_groq_api(prompt)
+            ai_result = await self._call_groq_api(prompt, article.id)
             
             if ai_result:
                 return ai_result.to_evaluation(article.id)
@@ -171,8 +175,9 @@ class ArticleEvaluator:
         system_prompt = self.evaluation_config.get("system_prompt", "")
         user_prompt_template = self.evaluation_config.get("user_prompt_template", "")
         
-        # Format user prompt with article data
+        # Format user prompt with article data including article ID
         user_prompt = user_prompt_template.format(
+            article_id=article.id,
             title=article.title,
             author=article.author,
             content_preview=content
@@ -183,11 +188,12 @@ class ArticleEvaluator:
             {"role": "user", "content": user_prompt}
         ]
     
-    async def _call_groq_api(self, messages: List[Dict[str, str]]) -> Optional[AIEvaluationResult]:
+    async def _call_groq_api(self, messages: List[Dict[str, str]], expected_article_id: str) -> Optional[AIEvaluationResult]:
         """Call Groq API for evaluation.
         
         Args:
             messages: List of messages for the API
+            expected_article_id: Expected article ID to validate against response
             
         Returns:
             AI evaluation result or None if failed
@@ -197,11 +203,17 @@ class ArticleEvaluator:
         
         for attempt in range(max_retries):
             try:
+                # Add slight randomization to temperature to prevent identical evaluations
+                base_temperature = self.groq_settings.get("temperature", 0.3)
+                # Vary temperature by ±0.05 to add diversity while maintaining consistency
+                randomized_temperature = base_temperature + random.uniform(-0.05, 0.05)
+                randomized_temperature = max(0.1, min(0.8, randomized_temperature))  # Keep within reasonable bounds
+                
                 # Make API call
                 response = self.client.chat.completions.create(
                     model=self.groq_settings.get("model", "llama3-70b-8192"),
                     messages=messages,
-                    temperature=self.groq_settings.get("temperature", 0.3),
+                    temperature=randomized_temperature,
                     max_tokens=self.groq_settings.get("max_tokens", 1000),
                     top_p=self.groq_settings.get("top_p", 0.9),
                     frequency_penalty=self.groq_settings.get("frequency_penalty", 0.0),
@@ -210,7 +222,7 @@ class ArticleEvaluator:
                 
                 # Parse response
                 content = response.choices[0].message.content
-                return self._parse_ai_response(content)
+                return self._parse_ai_response(content, expected_article_id)
                 
             except Exception as e:
                 logger.warning(f"Groq API call failed (attempt {attempt + 1}): {e}")
@@ -221,11 +233,12 @@ class ArticleEvaluator:
         
         return None
     
-    def _parse_ai_response(self, content: str) -> Optional[AIEvaluationResult]:
+    def _parse_ai_response(self, content: str, expected_article_id: str) -> Optional[AIEvaluationResult]:
         """Parse AI response content.
         
         Args:
             content: Response content from AI
+            expected_article_id: Expected article ID to validate
             
         Returns:
             Parsed evaluation result or None if failed
@@ -239,6 +252,15 @@ class ArticleEvaluator:
             
             json_str = json_match.group()
             data = json.loads(json_str)
+            
+            # Validate article ID first
+            returned_article_id = data.get('article_id', '')
+            if returned_article_id != expected_article_id:
+                logger.warning(
+                    f"Article ID mismatch: expected '{expected_article_id}', "
+                    f"got '{returned_article_id}'. Using expected ID."
+                )
+                data['article_id'] = expected_article_id
             
             # Apply data validation and fallbacks
             data = self._validate_and_fix_response_data(data)
@@ -262,6 +284,9 @@ class ArticleEvaluator:
             # Recalculate total score
             result.total_score = result.quality_score + result.originality_score + result.entertainment_score
             
+            # Check for potential duplicate scores
+            self._check_for_duplicate_scores(result)
+            
             return result
             
         except json.JSONDecodeError as e:
@@ -281,6 +306,10 @@ class ArticleEvaluator:
             Validated and fixed data
         """
         # Ensure all required fields exist with default values
+        if 'article_id' not in data:
+            logger.warning("Missing article_id in AI response")
+            data['article_id'] = None
+        
         if 'quality_score' not in data:
             logger.warning("Missing quality_score, using default: 20")
             data['quality_score'] = 20
@@ -295,7 +324,10 @@ class ArticleEvaluator:
         
         if 'ai_summary' not in data:
             logger.warning("Missing ai_summary, using default")
-            data['ai_summary'] = "AI評価の詳細が取得できませんでした。"
+            data['ai_summary'] = "AI評価の詳細が取得できませんでした。記事内容を確認してお楽しみください。"
+        elif len(data['ai_summary']) < 10:
+            logger.warning(f"AI summary too short ({len(data['ai_summary'])} chars), padding")
+            data['ai_summary'] = data['ai_summary'] + "記事の詳細をご確認ください。"
         
         # Ensure ai_summary is within length limit (300 characters)
         if len(data['ai_summary']) > 300:
@@ -306,6 +338,47 @@ class ArticleEvaluator:
         data['total_score'] = data['quality_score'] + data['originality_score'] + data['entertainment_score']
         
         return data
+    
+    def _check_for_duplicate_scores(self, result: AIEvaluationResult) -> None:
+        """Check for duplicate scores and log warnings if detected.
+        
+        Args:
+            result: AI evaluation result to check
+        """
+        score_pattern = f"{result.quality_score}/{result.originality_score}/{result.entertainment_score}"
+        
+        # Add to recent evaluations (keep last 20)
+        self.recent_evaluations.append({
+            'article_id': result.article_id,
+            'pattern': score_pattern,
+            'total_score': result.total_score,
+            'summary': result.ai_summary[:50] + "..." if len(result.ai_summary) > 50 else result.ai_summary
+        })
+        
+        # Keep only last 20 evaluations
+        if len(self.recent_evaluations) > 20:
+            self.recent_evaluations = self.recent_evaluations[-20:]
+        
+        # Check for duplicates
+        pattern_count = sum(1 for eval_data in self.recent_evaluations if eval_data['pattern'] == score_pattern)
+        
+        if pattern_count > 1:
+            logger.warning(
+                f"⚠️  DUPLICATE SCORE PATTERN DETECTED: {score_pattern} "
+                f"(found {pattern_count} times in recent evaluations)"
+            )
+            
+            # Log all articles with this pattern
+            duplicates = [eval_data for eval_data in self.recent_evaluations if eval_data['pattern'] == score_pattern]
+            for dup in duplicates:
+                logger.warning(f"  - {dup['article_id']}: {dup['summary']}")
+            
+            # If 3 or more identical patterns, this might indicate a system issue
+            if pattern_count >= 3:
+                logger.error(
+                    f"❌ CRITICAL: {pattern_count} identical score patterns detected! "
+                    f"This may indicate an AI model or system issue."
+                )
         
         return None
     

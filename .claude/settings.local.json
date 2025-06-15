@@ -38,7 +38,10 @@
       "Bash(git rm:*)",
       "Bash(git rebase:*)",
       "Bash(git stash:*)",
-      "Bash(gh issue create:*)"
+      "Bash(gh issue create:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue close:*)",
+      "Bash(sqlite3:*)"
     ],
     "deny": []
   }

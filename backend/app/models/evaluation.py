@@ -59,11 +59,12 @@ class EvaluationResponse(BaseModel):
 class AIEvaluationResult(BaseModel):
     """AI evaluation result from Groq API."""
     
+    article_id: Optional[str] = Field(None, description="Article ID returned by AI")
     quality_score: int = Field(..., ge=0, le=40)
     originality_score: int = Field(..., ge=0, le=30)
     entertainment_score: int = Field(..., ge=0, le=30)
     total_score: int = Field(..., ge=0, le=100)
-    ai_summary: str = Field(..., min_length=50, max_length=300)
+    ai_summary: str = Field(..., min_length=10, max_length=300)
     evaluation_reason: Optional[str] = None
     
     def to_evaluation(self, article_id: str) -> Evaluation:

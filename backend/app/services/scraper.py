@@ -125,10 +125,12 @@ class NoteScraper:
                 logger.error(f"Failed to collect from {url_config['name']}: {e}")
                 continue
         
-        # Remove duplicates by key
+        # Remove duplicates by key and URL combination
         unique_articles = {}
         for article in all_articles:
-            unique_articles[article['key']] = article
+            # Use unique key based on key + urlname
+            unique_key = f"{article['key']}_{article['urlname']}"
+            unique_articles[unique_key] = article
         
         final_articles = list(unique_articles.values())
         logger.info(f"Collected {len(final_articles)} unique article references total")
@@ -148,7 +150,15 @@ class NoteScraper:
         # Convert article references to Article objects without fetching details
         # (Details can be fetched later using collect_article_with_details if needed)
         articles = []
+        unique_articles = {}  # Track unique articles by URL to prevent duplicates
+        
         for ref in article_list:
+            url = ref['url']
+            # Skip if we already have this URL
+            if url in unique_articles:
+                logger.debug(f"Skipping duplicate article URL: {url}")
+                continue
+                
             article = Article(
                 id=ref['id'],
                 title=ref['title'],
@@ -161,7 +171,9 @@ class NoteScraper:
                 note_data=ref.get('note_data')
             )
             articles.append(article)
+            unique_articles[url] = article
         
+        logger.info(f"Converted {len(articles)} unique articles from {len(article_list)} references")
         return articles
     
     async def _collect_list_from_source(self, url_config: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -313,11 +325,11 @@ class NoteScraper:
         """
         try:
             # Extract basic fields
-            note_id = str(note.get('id', ''))
+            original_note_id = str(note.get('id', ''))
             key = note.get('key', '')
             title = note.get('name', '')
             
-            if not note_id or not title:
+            if not key or not title:
                 return None
             
             # Extract user data
@@ -326,6 +338,9 @@ class NoteScraper:
             
             if not urlname:
                 return None
+            
+            # Generate unique ID using key + urlname combination
+            note_id = f"{key}_{urlname}"
             
             # Build URL
             url = f"https://note.com/{urlname}/n/{key}"
@@ -600,16 +615,23 @@ class NoteScraper:
         """
         try:
             # Extract basic fields
-            note_id = str(note.get('id', ''))
+            original_note_id = str(note.get('id', ''))
             key = note.get('key', '')
             title = note.get('name', '')
             
-            if not note_id or not title:
+            if not key or not title:
                 return None
             
             # Build URL
             user_data = note.get('user', {})
             urlname = user_data.get('urlname', '')
+            
+            if not urlname:
+                return None
+            
+            # Generate unique ID using key + urlname combination
+            note_id = f"{key}_{urlname}"
+            
             url = f"https://note.com/{urlname}/n/{key}"
             
             # Extract author
@@ -798,13 +820,24 @@ class NoteScraper:
         """
         try:
             # Extract basic fields
-            note_id = str(item.get('id', ''))
+            original_note_id = str(item.get('id', ''))
+            key = item.get('key', original_note_id)  # Use key if available, otherwise use ID
             title = item.get('name', '')
-            if not note_id or not title:
+            if not key or not title:
                 return None
             
+            # Extract user data
+            user_data = item.get('user', {})
+            urlname = user_data.get('urlname', '')
+            
+            if not urlname:
+                return None
+            
+            # Generate unique ID using key + urlname combination
+            note_id = f"{key}_{urlname}"
+            
             # Build URL
-            url = f"https://note.com/{item.get('user', {}).get('urlname', '')}/n/{note_id}"
+            url = f"https://note.com/{urlname}/n/{key}"
             
             # Extract author
             user_data = item.get('user', {})

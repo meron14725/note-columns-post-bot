@@ -71,11 +71,22 @@ class JSONGenerator:
                 days=30
             )
             
+            # Remove duplicates by URL before converting to JSON
+            unique_articles = {}
+            for article in articles:
+                url = str(article.url)
+                # Keep the article with the highest score if duplicates exist
+                if url not in unique_articles or article.total_score > unique_articles[url].total_score:
+                    unique_articles[url] = article
+            
+            final_articles = list(unique_articles.values())
+            logger.info(f"Removed {len(articles) - len(final_articles)} duplicate articles")
+            
             # Convert to JSON format
             json_data = {
                 "lastUpdated": datetime.now().isoformat(),
-                "total": len(articles),
-                "articles": [self._article_to_json(article) for article in articles]
+                "total": len(final_articles),
+                "articles": [self._article_to_json(article) for article in final_articles]
             }
             
             # Save to both output and json data directories
@@ -106,10 +117,22 @@ class JSONGenerator:
             if len(top_articles) < 5:
                 top_articles = self.article_repo.get_top_articles(limit=5, days=7)
             
+            # Remove duplicates by URL and keep highest-scored ones
+            unique_articles = {}
+            for article in top_articles:
+                url = str(article.url)
+                if url not in unique_articles or article.total_score > unique_articles[url].total_score:
+                    unique_articles[url] = article
+            
+            final_top_articles = list(unique_articles.values())
+            # Sort by score descending and take top 5
+            final_top_articles.sort(key=lambda x: x.total_score, reverse=True)
+            final_top_articles = final_top_articles[:5]
+            
             json_data = {
                 "lastUpdated": datetime.now().isoformat(),
                 "period": "daily",
-                "articles": [self._article_to_json(article) for article in top_articles]
+                "articles": [self._article_to_json(article) for article in final_top_articles]
             }
             
             # Save to both directories

@@ -298,7 +298,7 @@ class JSONGenerator:
         Returns:
             Dictionary in JSON format
         """
-        return {
+        json_data = {
             "id": article.id,
             "title": article.title,
             "url": article.url,
@@ -315,6 +315,16 @@ class JSONGenerator:
             "ai_summary": article.ai_summary,
             "evaluated_at": article.evaluated_at.isoformat()
         }
+        
+        # Add retry evaluation metadata if this is a retry evaluation
+        if hasattr(article, 'is_retry_evaluation') and article.is_retry_evaluation:
+            json_data["evaluation_metadata"] = {
+                "is_retry_evaluation": True,
+                "retry_reason": article.retry_reason,
+                "evaluation_metadata": article.evaluation_metadata
+            }
+        
+        return json_data
     
     def _simple_article_to_json(self, article) -> Dict[str, Any]:
         """Convert Article to simple JSON format (for categories).

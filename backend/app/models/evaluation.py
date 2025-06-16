@@ -1,7 +1,7 @@
 """Evaluation data models."""
 
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Dict, Any
 from pydantic import BaseModel, Field
 
 
@@ -15,6 +15,10 @@ class Evaluation(BaseModel):
     entertainment_score: int = Field(..., ge=0, le=30, description="Entertainment score (0-30)")
     total_score: int = Field(..., ge=0, le=100, description="Total score (0-100)")
     ai_summary: str = Field(..., description="AI-generated summary")
+    is_retry_evaluation: bool = Field(False, description="Whether this is a retry evaluation")
+    original_evaluation_id: Optional[int] = Field(None, description="Original evaluation ID for retry")
+    retry_reason: Optional[str] = Field(None, description="Reason for retry evaluation")
+    evaluation_metadata: Optional[Dict[str, Any]] = Field(None, description="Additional evaluation metadata")
     evaluated_at: datetime = Field(default_factory=datetime.now, description="Evaluation timestamp")
     created_at: datetime = Field(default_factory=datetime.now)
     
@@ -66,12 +70,18 @@ class AIEvaluationResult(BaseModel):
     total_score: int = Field(..., ge=0, le=100)
     ai_summary: str = Field(..., min_length=10, max_length=300)
     evaluation_reason: Optional[str] = None
+    retry_metadata: Optional[Dict[str, Any]] = Field(None, description="Retry evaluation metadata")
     
-    def to_evaluation(self, article_id: str) -> Evaluation:
+    def to_evaluation(self, article_id: str, is_retry: bool = False, 
+                     original_evaluation_id: Optional[int] = None,
+                     retry_reason: Optional[str] = None) -> Evaluation:
         """Convert to Evaluation model.
         
         Args:
             article_id: Article ID
+            is_retry: Whether this is a retry evaluation
+            original_evaluation_id: Original evaluation ID for retry
+            retry_reason: Reason for retry
             
         Returns:
             Evaluation instance
@@ -83,6 +93,10 @@ class AIEvaluationResult(BaseModel):
             entertainment_score=self.entertainment_score,
             total_score=self.total_score,
             ai_summary=self.ai_summary,
+            is_retry_evaluation=is_retry,
+            original_evaluation_id=original_evaluation_id,
+            retry_reason=retry_reason,
+            evaluation_metadata=self.retry_metadata,
         )
 
 

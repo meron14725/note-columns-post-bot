@@ -7,13 +7,6 @@ from pathlib import Path
 def test_config_imports():
     """Test that configuration can be imported without errors."""
     try:
-        import sys
-        import os
-        
-        # Add project root to path
-        project_root = Path(__file__).parent.parent.parent
-        sys.path.insert(0, str(project_root))
-        
         from config.config import config
         assert config is not None
     except ImportError as e:

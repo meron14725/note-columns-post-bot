@@ -7,8 +7,7 @@ import requests
 import re
 from bs4 import BeautifulSoup
 
-# Add backend directory to Python path  
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Import modules using installed package structure
 
 def debug_note_session():
     """Debug note session token acquisition."""

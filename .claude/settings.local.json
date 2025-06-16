@@ -4,7 +4,25 @@
       "Bash(cp:*)",
       "Bash(PYTHONPATH=. python:*)",
       "Bash(sqlite3:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_install",
+      "Bash(pkill:*)",
+      "Bash(true)",
+      "mcp__playwright__browser_take_screenshot",
+      "Bash(git checkout:*)",
+      "Bash(python test:*)",
+      "Bash(rm:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh issue create:*)",
+      "Bash(uv add:*)",
+      "Bash(pip install:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(python:*)"
     ],
     "deny": []
   }

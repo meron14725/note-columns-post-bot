@@ -7,8 +7,7 @@ import requests
 import json
 from urllib.parse import quote
 
-# Add backend directory to Python path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Import modules using installed package structure
 
 def test_api_without_token():
     """Test note API without XSRF token."""

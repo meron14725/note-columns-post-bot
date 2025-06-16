@@ -21,13 +21,6 @@ def temp_db():
 
 def test_database_initialization(temp_db):
     """Test database initialization."""
-    import sys
-    from pathlib import Path
-    
-    # Add project root to path
-    project_root = Path(__file__).parent.parent.parent
-    sys.path.insert(0, str(project_root))
-    
     from backend.app.utils.database import DatabaseManager
     
     db_manager = DatabaseManager(temp_db)
@@ -41,13 +34,6 @@ def test_database_initialization(temp_db):
 
 def test_database_stats(temp_db):
     """Test database statistics retrieval."""
-    import sys
-    from pathlib import Path
-    
-    # Add project root to path
-    project_root = Path(__file__).parent.parent.parent
-    sys.path.insert(0, str(project_root))
-    
     from backend.app.utils.database import DatabaseManager
     
     db_manager = DatabaseManager(temp_db)
@@ -61,13 +47,7 @@ def test_database_stats(temp_db):
 
 def test_article_repository(temp_db):
     """Test article repository operations."""
-    import sys
-    from pathlib import Path
     from datetime import datetime
-    
-    # Add project root to path
-    project_root = Path(__file__).parent.parent.parent
-    sys.path.insert(0, str(project_root))
     
     from backend.app.utils.database import DatabaseManager
     from backend.app.repositories.article_repository import ArticleRepository

@@ -6,9 +6,7 @@ import sqlite3
 import re
 from pathlib import Path
 
-# Add the project root to Python path
-project_root = Path(__file__).parent.parent
-sys.path.append(str(project_root))
+# Import modules using installed package structure
 
 from backend.app.utils.database import db_manager
 from backend.app.utils.logger import get_logger

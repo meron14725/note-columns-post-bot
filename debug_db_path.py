@@ -4,8 +4,7 @@
 import sys
 from pathlib import Path
 
-# Add the parent directory to sys.path for imports
-sys.path.append(str(Path(__file__).parent))
+# Import modules using installed package structure
 
 from backend.app.utils.database import db_manager
 from backend.app.utils.logger import get_logger

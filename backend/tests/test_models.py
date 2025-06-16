@@ -6,13 +6,6 @@ from datetime import datetime
 
 def test_article_model():
     """Test Article model creation and validation."""
-    import sys
-    from pathlib import Path
-    
-    # Add project root to path
-    project_root = Path(__file__).parent.parent.parent
-    sys.path.insert(0, str(project_root))
-    
     from backend.app.models.article import Article
     
     article = Article(
@@ -33,13 +26,6 @@ def test_article_model():
 
 def test_evaluation_model():
     """Test Evaluation model creation and validation."""
-    import sys
-    from pathlib import Path
-    
-    # Add project root to path
-    project_root = Path(__file__).parent.parent.parent
-    sys.path.insert(0, str(project_root))
-    
     from backend.app.models.evaluation import Evaluation
     
     evaluation = Evaluation(
@@ -61,13 +47,6 @@ def test_evaluation_model():
 
 def test_evaluation_score_validation():
     """Test evaluation score range validation."""
-    import sys
-    from pathlib import Path
-    
-    # Add project root to path
-    project_root = Path(__file__).parent.parent.parent
-    sys.path.insert(0, str(project_root))
-    
     from backend.app.models.evaluation import Evaluation
     
     # Test valid scores
@@ -88,13 +67,6 @@ def test_evaluation_score_validation():
 
 def test_ai_evaluation_result():
     """Test AI evaluation result model."""
-    import sys
-    from pathlib import Path
-    
-    # Add project root to path
-    project_root = Path(__file__).parent.parent.parent
-    sys.path.insert(0, str(project_root))
-    
     from backend.app.models.evaluation import AIEvaluationResult
     
     result = AIEvaluationResult(

@@ -43,6 +43,9 @@ class ArticleEvaluator:
         # Track recent evaluations to detect duplicates
         self.recent_evaluations = []
         
+        # Load retry evaluation config
+        self.retry_evaluation_config = self.prompt_settings.get("retry_evaluation_prompt", {})
+        
     @log_execution_time
     async def evaluate_articles(self, articles: List[Article]) -> List[Evaluation]:
         """Evaluate multiple articles.
@@ -111,7 +114,7 @@ class ArticleEvaluator:
         return None
     
     async def _evaluate_single_article(self, article: Article, full_content: Optional[str] = None) -> Optional[Evaluation]:
-        """Evaluate a single article.
+        """Evaluate a single article with automatic retry for duplicate scores.
         
         Args:
             article: Article to evaluate
@@ -132,15 +135,17 @@ class ArticleEvaluator:
             
             if ai_result:
                 # Check for duplicate scores and retry if needed
-                needs_retry = self._check_for_duplicate_scores(ai_result)
-                
-                if needs_retry:
-                    logger.info(f"🔄 Retrying evaluation for article {article.id} due to duplicate score pattern")
-                    retry_result = await self._retry_evaluation_with_alternative_prompt(article, content_text, ai_result)
-                    if retry_result:
-                        return retry_result
+                if self._check_for_duplicate_scores(ai_result):
+                    logger.info(f"Duplicate score detected for {article.id}, attempting retry evaluation")
+                    
+                    retry_evaluation = await self._retry_evaluation_with_alternative_prompt(
+                        article, content_text, ai_result
+                    )
+                    
+                    if retry_evaluation:
+                        return retry_evaluation
                     else:
-                        logger.warning(f"Retry evaluation failed, using original result for {article.id}")
+                        logger.warning(f"Retry evaluation failed for {article.id}, using original result")
                 
                 return ai_result.to_evaluation(article.id)
             
@@ -190,11 +195,12 @@ class ArticleEvaluator:
         system_prompt = self.evaluation_config.get("system_prompt", "")
         user_prompt_template = self.evaluation_config.get("user_prompt_template", "")
         
-        # Format user prompt with article data including article ID
+        # Format user prompt with article data including article ID and category
         user_prompt = user_prompt_template.format(
             article_id=article.id,
             title=article.title,
             author=article.author,
+            category=article.category or "未分類",
             content_preview=content
         )
         
@@ -299,9 +305,6 @@ class ArticleEvaluator:
             # Recalculate total score
             result.total_score = result.quality_score + result.originality_score + result.entertainment_score
             
-            # Check for potential duplicate scores
-            self._check_for_duplicate_scores(result)
-            
             return result
             
         except json.JSONDecodeError as e:
@@ -398,6 +401,11 @@ class ArticleEvaluator:
             for dup in duplicates:
                 logger.warning(f"  - {dup['article_id']}: {dup['summary']}")
             
+            # Trigger retry on second occurrence (pattern_count == 2)
+            if pattern_count == 2:
+                logger.info(f"🔄 Triggering retry evaluation for duplicate pattern: {score_pattern}")
+                return True
+            
             # If 3 or more identical patterns, this might indicate a system issue
             if pattern_count >= 3:
                 logger.error(
@@ -405,75 +413,84 @@ class ArticleEvaluator:
                     f"This may indicate an AI model or system issue."
                 )
         
-        return False  # No retry needed
+        return False
     
     async def _retry_evaluation_with_alternative_prompt(self, article: Article, content_text: str, 
                                                        original_result: AIEvaluationResult) -> Optional[Evaluation]:
-        """Retry evaluation with alternative prompt for better score diversity.
+        """Retry evaluation with alternative prompt to avoid duplicate scores.
         
         Args:
             article: Article to re-evaluate
             content_text: Prepared content text
-            original_result: Original evaluation result that triggered retry
+            original_result: Original evaluation result
             
         Returns:
             Retry evaluation result or None if failed
         """
         try:
-            logger.info(f"🔄 Starting retry evaluation for article {article.id}")
-            
-            # Generate alternative prompt
+            # Generate alternative prompt using retry config
             retry_prompt = self._generate_retry_evaluation_prompt(article, content_text)
             
-            # Call Groq API with retry prompt
+            # Call Groq API with retry-specific settings
             retry_ai_result = await self._call_groq_api_with_retry_settings(retry_prompt, article.id)
             
             if retry_ai_result:
-                # Store original evaluation ID (this would require database lookup in real implementation)
-                original_eval_id = None  # Would be retrieved from database
+                # Create metadata for retry evaluation
+                retry_metadata = {
+                    "original_scores": {
+                        "quality": original_result.quality_score,
+                        "originality": original_result.originality_score,
+                        "entertainment": original_result.entertainment_score,
+                        "total": original_result.total_score
+                    },
+                    "retry_scores": {
+                        "quality": retry_ai_result.quality_score,
+                        "originality": retry_ai_result.originality_score,
+                        "entertainment": retry_ai_result.entertainment_score,
+                        "total": retry_ai_result.total_score
+                    },
+                    "score_pattern_original": f"{original_result.quality_score}/{original_result.originality_score}/{original_result.entertainment_score}",
+                    "score_pattern_retry": f"{retry_ai_result.quality_score}/{retry_ai_result.originality_score}/{retry_ai_result.entertainment_score}"
+                }
                 
-                # Convert to evaluation with retry metadata
-                retry_evaluation = retry_ai_result.to_evaluation(
-                    article.id,
-                    is_retry=True,
-                    original_evaluation_id=original_eval_id,
-                    retry_reason="duplicate_score_pattern"
-                )
+                retry_reason = f"Duplicate score pattern detected: {retry_metadata['score_pattern_original']}"
                 
                 logger.info(
                     f"✅ Retry evaluation completed for {article.id}: "
-                    f"Original: {original_result.quality_score}/{original_result.originality_score}/{original_result.entertainment_score}={original_result.total_score}, "
-                    f"Retry: {retry_ai_result.quality_score}/{retry_ai_result.originality_score}/{retry_ai_result.entertainment_score}={retry_ai_result.total_score}"
+                    f"{retry_metadata['score_pattern_original']} → {retry_metadata['score_pattern_retry']}"
                 )
                 
-                return retry_evaluation
-            else:
-                logger.error(f"❌ Retry evaluation API call failed for {article.id}")
-                
+                return retry_ai_result.to_evaluation(
+                    article.id, 
+                    is_retry=True,
+                    retry_reason=retry_reason,
+                    evaluation_metadata=retry_metadata
+                )
+            
         except Exception as e:
-            logger.error(f"❌ Error in retry evaluation for {article.id}: {e}")
+            logger.error(f"Error in retry evaluation: {e}")
         
         return None
     
     def _generate_retry_evaluation_prompt(self, article: Article, content: str) -> List[Dict[str, str]]:
-        """Generate retry evaluation prompt with alternative settings.
+        """Generate retry evaluation prompt with alternative approach.
         
         Args:
             article: Article to evaluate
             content: Prepared content text
             
         Returns:
-            List of messages for the retry API call
+            List of messages for the API
         """
-        retry_config = self.prompt_settings.get("retry_evaluation_prompt", {})
-        system_prompt = retry_config.get("system_prompt", "")
-        user_prompt_template = retry_config.get("user_prompt_template", "")
+        system_prompt = self.retry_evaluation_config.get("system_prompt", "")
+        user_prompt_template = self.retry_evaluation_config.get("user_prompt_template", "")
         
-        # Format user prompt with article data
+        # Format user prompt with article data including category
         user_prompt = user_prompt_template.format(
             article_id=article.id,
             title=article.title,
             author=article.author,
+            category=article.category or "未分類",
             content_preview=content
         )
         
@@ -482,9 +499,8 @@ class ArticleEvaluator:
             {"role": "user", "content": user_prompt}
         ]
     
-    async def _call_groq_api_with_retry_settings(self, messages: List[Dict[str, str]], 
-                                               expected_article_id: str) -> Optional[AIEvaluationResult]:
-        """Call Groq API with retry-specific settings for better diversity.
+    async def _call_groq_api_with_retry_settings(self, messages: List[Dict[str, str]], expected_article_id: str) -> Optional[AIEvaluationResult]:
+        """Call Groq API with retry-specific settings for diversity.
         
         Args:
             messages: List of messages for the API
@@ -499,17 +515,20 @@ class ArticleEvaluator:
         for attempt in range(max_retries):
             try:
                 # Use higher temperature for retry to increase diversity
-                retry_temperature = 0.6
+                base_temperature = self.groq_settings.get("temperature", 0.3)
+                # Increase temperature significantly for retry (0.5-0.8 range)
+                retry_temperature = base_temperature + random.uniform(0.2, 0.5)
+                retry_temperature = max(0.5, min(0.8, retry_temperature))
                 
-                # Make API call with retry settings
+                # Make API call with higher temperature
                 response = self.client.chat.completions.create(
                     model=self.groq_settings.get("model", "llama3-70b-8192"),
                     messages=messages,
                     temperature=retry_temperature,
                     max_tokens=self.groq_settings.get("max_tokens", 1000),
-                    top_p=0.95,  # Slightly higher for more diversity
-                    frequency_penalty=0.1,  # Add penalty to avoid repetition
-                    presence_penalty=0.1,   # Add penalty for repeated topics
+                    top_p=self.groq_settings.get("top_p", 0.9),
+                    frequency_penalty=self.groq_settings.get("frequency_penalty", 0.0),
+                    presence_penalty=self.groq_settings.get("presence_penalty", 0.0),
                 )
                 
                 # Parse response
@@ -517,7 +536,7 @@ class ArticleEvaluator:
                 return self._parse_ai_response(content, expected_article_id)
                 
             except Exception as e:
-                logger.warning(f"Retry Groq API call failed (attempt {attempt + 1}): {e}")
+                logger.warning(f"Groq API retry call failed (attempt {attempt + 1}): {e}")
                 if attempt < max_retries - 1:
                     await asyncio.sleep(retry_delay * (2 ** attempt))
                 else:

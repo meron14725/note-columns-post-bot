@@ -1,51 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:docs.anthropic.com)",
-      "Bash(claude mcp)",
-      "Bash(claude mcp add playwright npx @playwright/mcp-server)",
-      "Bash(claude mcp list)",
-      "Bash(env)",
-      "Bash(mkdir:*)",
-      "Bash(touch:*)",
-      "Bash(git add:*)",
-      "Bash(git push:*)",
-      "Bash(git commit:*)",
-      "Bash(git checkout:*)",
-      "Bash(grep:*)",
-      "Bash(git pull:*)",
-      "Bash(ls:*)",
-      "Bash(uv run:*)",
-      "Bash(python3 -m pip install:*)",
-      "Bash(python3:*)",
-      "Bash(PYTHONPATH=. python3 backend/batch/daily_process.py)",
-      "WebFetch(domain:note.com)",
-      "Bash(PYTHONPATH=. python3 test_new_scraper.py)",
-      "Bash(python:*)",
-      "Bash(pip install:*)",
-      "Bash(rg:*)",
-      "Bash(gh pr create:*)",
-      "Bash(find:*)",
-      "Bash(mv:*)",
-      "Bash(rm:*)",
-      "Bash(gh pr list:*)",
-      "Bash(gh pr:*)",
-      "Bash(PYTHONPATH=. python3 scripts/calculate_data_size.py)",
-      "Bash(PYTHONPATH=. python3 scripts/test_streaming_evaluation.py)",
-      "Bash(PYTHONPATH=. python3 scripts/test_streaming_daily_batch.py)",
-      "Bash(git fetch:*)",
-      "Bash(git merge:*)",
-      "Bash(git rm:*)",
-      "Bash(git rebase:*)",
-      "Bash(git stash:*)",
-<<<<<<< feature/duplicate-score-detection-and-fixes
-      "Bash(gh issue create:*)",
-      "Bash(gh issue list:*)",
-      "Bash(gh issue close:*)",
-      "Bash(sqlite3:*)"
-=======
-      "Bash(gh issue create:*)"
->>>>>>> main
+      "Bash(cp:*)",
+      "Bash(PYTHONPATH=. python:*)",
+      "Bash(sqlite3:*)",
+      "Bash(git restore:*)"
     ],
     "deny": []
   }

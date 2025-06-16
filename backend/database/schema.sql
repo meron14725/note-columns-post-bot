@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS evaluations (
 CREATE INDEX IF NOT EXISTS idx_evaluations_total_score ON evaluations(total_score DESC);
 CREATE INDEX IF NOT EXISTS idx_evaluations_evaluated_at ON evaluations(evaluated_at);
 CREATE INDEX IF NOT EXISTS idx_evaluations_article_id ON evaluations(article_id);
+CREATE INDEX IF NOT EXISTS idx_evaluations_is_retry ON evaluations(is_retry_evaluation);
 
 -- Twitter posts table: stores X/Twitter post history
 CREATE TABLE IF NOT EXISTS twitter_posts (

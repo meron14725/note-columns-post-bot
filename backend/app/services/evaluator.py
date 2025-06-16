@@ -379,9 +379,16 @@ class ArticleEvaluator:
         # Check for duplicates
         pattern_count = sum(1 for eval_data in self.recent_evaluations if eval_data['pattern'] == score_pattern)
         
-        if pattern_count > 1:
+        if pattern_count == 2:
             logger.warning(
-                f"⚠️  DUPLICATE SCORE PATTERN DETECTED: {score_pattern} "
+                f"⚠️  DUPLICATE SCORE PATTERN DETECTED (2nd occurrence): {score_pattern} "
+                f"- triggering retry evaluation for article {result.article_id}"
+            )
+            return True  # Trigger retry
+            
+        elif pattern_count > 2:
+            logger.warning(
+                f"⚠️  DUPLICATE SCORE PATTERN: {score_pattern} "
                 f"(found {pattern_count} times in recent evaluations)"
             )
             

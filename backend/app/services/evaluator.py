@@ -295,6 +295,9 @@ class ArticleEvaluator:
             # Recalculate total score
             result.total_score = result.quality_score + result.originality_score + result.entertainment_score
             
+            # Check for potential duplicate scores
+            self._check_for_duplicate_scores(result)
+            
             return result
             
         except json.JSONDecodeError as e:
@@ -347,6 +350,7 @@ class ArticleEvaluator:
         
         return data
     
+<<<<<<< feature/duplicate-score-detection-and-fixes
     def _check_for_duplicate_scores(self, result: AIEvaluationResult) -> bool:
         """Check for duplicate scores and return True if retry is needed.
         
@@ -355,6 +359,13 @@ class ArticleEvaluator:
             
         Returns:
             True if retry evaluation should be performed
+=======
+    def _check_for_duplicate_scores(self, result: AIEvaluationResult) -> None:
+        """Check for duplicate scores and log warnings if detected.
+        
+        Args:
+            result: AI evaluation result to check
+>>>>>>> main
         """
         score_pattern = f"{result.quality_score}/{result.originality_score}/{result.entertainment_score}"
         
@@ -373,6 +384,7 @@ class ArticleEvaluator:
         # Check for duplicates
         pattern_count = sum(1 for eval_data in self.recent_evaluations if eval_data['pattern'] == score_pattern)
         
+<<<<<<< feature/duplicate-score-detection-and-fixes
         if pattern_count == 2:
             logger.warning(
                 f"⚠️  DUPLICATE SCORE PATTERN DETECTED (2nd occurrence): {score_pattern} "
@@ -383,6 +395,11 @@ class ArticleEvaluator:
         elif pattern_count > 2:
             logger.warning(
                 f"⚠️  DUPLICATE SCORE PATTERN: {score_pattern} "
+=======
+        if pattern_count > 1:
+            logger.warning(
+                f"⚠️  DUPLICATE SCORE PATTERN DETECTED: {score_pattern} "
+>>>>>>> main
                 f"(found {pattern_count} times in recent evaluations)"
             )
             
@@ -397,6 +414,7 @@ class ArticleEvaluator:
                     f"❌ CRITICAL: {pattern_count} identical score patterns detected! "
                     f"This may indicate an AI model or system issue."
                 )
+<<<<<<< feature/duplicate-score-detection-and-fixes
         
         return False  # No retry needed
     
@@ -515,6 +533,8 @@ class ArticleEvaluator:
                     await asyncio.sleep(retry_delay * (2 ** attempt))
                 else:
                     logger.error(f"Retry Groq API call failed after {max_retries} attempts")
+=======
+>>>>>>> main
         
         return None
     

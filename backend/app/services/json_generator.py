@@ -316,24 +316,13 @@ class JSONGenerator:
             "evaluated_at": article.evaluated_at.isoformat()
         }
         
-        # Add retry evaluation metadata if applicable
+        # Add retry evaluation metadata if this is a retry evaluation
         if hasattr(article, 'is_retry_evaluation') and article.is_retry_evaluation:
-            evaluation_metadata = {
+            json_data["evaluation_metadata"] = {
                 "is_retry_evaluation": True,
-                "retry_reason": getattr(article, 'retry_reason', 'unknown'),
-                "original_evaluation_id": getattr(article, 'original_evaluation_id', None)
+                "retry_reason": article.retry_reason,
+                "evaluation_metadata": article.evaluation_metadata
             }
-            
-            # Parse evaluation_metadata JSON if exists
-            if hasattr(article, 'evaluation_metadata') and article.evaluation_metadata:
-                try:
-                    import json
-                    parsed_metadata = json.loads(article.evaluation_metadata)
-                    evaluation_metadata.update(parsed_metadata)
-                except (json.JSONDecodeError, TypeError):
-                    logger.warning(f"Failed to parse evaluation_metadata for article {article.id}")
-            
-            json_data["evaluation_metadata"] = evaluation_metadata
         
         return json_data
     

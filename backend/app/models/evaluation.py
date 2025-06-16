@@ -70,6 +70,7 @@ class AIEvaluationResult(BaseModel):
     total_score: int = Field(..., ge=0, le=100)
     ai_summary: str = Field(..., min_length=10, max_length=300)
     evaluation_reason: Optional[str] = None
+    retry_metadata: Optional[Dict[str, Any]] = Field(None, description="Retry evaluation metadata")
     
     def to_evaluation(self, article_id: str, is_retry: bool = False, 
                      original_evaluation_id: Optional[int] = None,

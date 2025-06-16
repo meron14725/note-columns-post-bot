@@ -378,9 +378,16 @@ class ArticleEvaluator:
         # Check for duplicates
         pattern_count = sum(1 for eval_data in self.recent_evaluations if eval_data['pattern'] == score_pattern)
         
-        if pattern_count > 1:
+        if pattern_count == 2:
             logger.warning(
-                f"⚠️  DUPLICATE SCORE PATTERN DETECTED: {score_pattern} "
+                f"⚠️  DUPLICATE SCORE PATTERN DETECTED (2nd occurrence): {score_pattern} "
+                f"- triggering retry evaluation for article {result.article_id}"
+            )
+            return True  # Trigger retry
+            
+        elif pattern_count > 2:
+            logger.warning(
+                f"⚠️  DUPLICATE SCORE PATTERN: {score_pattern} "
                 f"(found {pattern_count} times in recent evaluations)"
             )
             
@@ -400,6 +407,124 @@ class ArticleEvaluator:
                     f"❌ CRITICAL: {pattern_count} identical score patterns detected! "
                     f"This may indicate an AI model or system issue."
                 )
+        
+        return False  # No retry needed
+    
+    async def _retry_evaluation_with_alternative_prompt(self, article: Article, content_text: str, 
+                                                       original_result: AIEvaluationResult) -> Optional[Evaluation]:
+        """Retry evaluation with alternative prompt for better score diversity.
+        
+        Args:
+            article: Article to re-evaluate
+            content_text: Prepared content text
+            original_result: Original evaluation result that triggered retry
+            
+        Returns:
+            Retry evaluation result or None if failed
+        """
+        try:
+            logger.info(f"🔄 Starting retry evaluation for article {article.id}")
+            
+            # Generate alternative prompt
+            retry_prompt = self._generate_retry_evaluation_prompt(article, content_text)
+            
+            # Call Groq API with retry prompt
+            retry_ai_result = await self._call_groq_api_with_retry_settings(retry_prompt, article.id)
+            
+            if retry_ai_result:
+                # Store original evaluation ID (this would require database lookup in real implementation)
+                original_eval_id = None  # Would be retrieved from database
+                
+                # Convert to evaluation with retry metadata
+                retry_evaluation = retry_ai_result.to_evaluation(
+                    article.id,
+                    is_retry=True,
+                    original_evaluation_id=original_eval_id,
+                    retry_reason="duplicate_score_pattern"
+                )
+                
+                logger.info(
+                    f"✅ Retry evaluation completed for {article.id}: "
+                    f"Original: {original_result.quality_score}/{original_result.originality_score}/{original_result.entertainment_score}={original_result.total_score}, "
+                    f"Retry: {retry_ai_result.quality_score}/{retry_ai_result.originality_score}/{retry_ai_result.entertainment_score}={retry_ai_result.total_score}"
+                )
+                
+                return retry_evaluation
+            else:
+                logger.error(f"❌ Retry evaluation API call failed for {article.id}")
+                
+        except Exception as e:
+            logger.error(f"❌ Error in retry evaluation for {article.id}: {e}")
+        
+        return None
+    
+    def _generate_retry_evaluation_prompt(self, article: Article, content: str) -> List[Dict[str, str]]:
+        """Generate retry evaluation prompt with alternative settings.
+        
+        Args:
+            article: Article to evaluate
+            content: Prepared content text
+            
+        Returns:
+            List of messages for the retry API call
+        """
+        retry_config = self.prompt_settings.get("retry_evaluation_prompt", {})
+        system_prompt = retry_config.get("system_prompt", "")
+        user_prompt_template = retry_config.get("user_prompt_template", "")
+        
+        # Format user prompt with article data
+        user_prompt = user_prompt_template.format(
+            article_id=article.id,
+            title=article.title,
+            author=article.author,
+            content_preview=content
+        )
+        
+        return [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+    
+    async def _call_groq_api_with_retry_settings(self, messages: List[Dict[str, str]], 
+                                               expected_article_id: str) -> Optional[AIEvaluationResult]:
+        """Call Groq API with retry-specific settings for better diversity.
+        
+        Args:
+            messages: List of messages for the API
+            expected_article_id: Expected article ID to validate against response
+            
+        Returns:
+            AI evaluation result or None if failed
+        """
+        max_retries = self.prompt_settings.get("rate_limit", {}).get("max_retries", 3)
+        retry_delay = self.prompt_settings.get("rate_limit", {}).get("retry_delay_seconds", 2.0)
+        
+        for attempt in range(max_retries):
+            try:
+                # Use higher temperature for retry to increase diversity
+                retry_temperature = 0.6
+                
+                # Make API call with retry settings
+                response = self.client.chat.completions.create(
+                    model=self.groq_settings.get("model", "llama3-70b-8192"),
+                    messages=messages,
+                    temperature=retry_temperature,
+                    max_tokens=self.groq_settings.get("max_tokens", 1000),
+                    top_p=0.95,  # Slightly higher for more diversity
+                    frequency_penalty=0.1,  # Add penalty to avoid repetition
+                    presence_penalty=0.1,   # Add penalty for repeated topics
+                )
+                
+                # Parse response
+                content = response.choices[0].message.content
+                return self._parse_ai_response(content, expected_article_id)
+                
+            except Exception as e:
+                logger.warning(f"Retry Groq API call failed (attempt {attempt + 1}): {e}")
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(retry_delay * (2 ** attempt))
+                else:
+                    logger.error(f"Retry Groq API call failed after {max_retries} attempts")
         
         return False
     

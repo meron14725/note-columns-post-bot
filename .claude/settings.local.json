@@ -38,7 +38,14 @@
       "Bash(git rm:*)",
       "Bash(git rebase:*)",
       "Bash(git stash:*)",
+<<<<<<< feature/duplicate-score-detection-and-fixes
+      "Bash(gh issue create:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue close:*)",
+      "Bash(sqlite3:*)"
+=======
       "Bash(gh issue create:*)"
+>>>>>>> main
     ],
     "deny": []
   }

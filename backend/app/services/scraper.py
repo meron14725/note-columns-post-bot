@@ -11,16 +11,13 @@ from urllib.parse import urljoin, quote
 import requests
 from bs4 import BeautifulSoup
 
-from app.models.article import (
+from backend.app.models.article import (
     Article, 
     NoteArticleMetadata as NoteArticleData,  # エイリアスで互換性維持
     ArticleReference
 )
-from app.utils.logger import get_logger, log_execution_time
-from app.utils.rate_limiter import rate_limiter
-import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
+from backend.app.utils.logger import get_logger, log_execution_time
+from backend.app.utils.rate_limiter import rate_limiter
 from config.config import config 
 
 logger = get_logger(__name__)
@@ -151,8 +148,8 @@ class NoteScraper:
         article_list = await self.collect_article_list()
         
         # Save article references to database for deduplication
-        from app.repositories.article_reference_repository import ArticleReferenceRepository
-        from app.models.article_reference import ArticleReference
+        from backend.app.repositories.article_reference_repository import ArticleReferenceRepository
+        from backend.app.models.article_reference import ArticleReference
         
         article_ref_repo = ArticleReferenceRepository()
         

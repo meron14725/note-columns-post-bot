@@ -1,6 +1,10 @@
 {
   "permissions": {
     "allow": [
+      "Bash(cp:*)",
+      "Bash(PYTHONPATH=. python:*)",
+      "Bash(sqlite3:*)",
+      "Bash(git restore:*)"
       "WebFetch(domain:docs.anthropic.com)",
       "Bash(claude mcp)",
       "Bash(claude mcp add playwright npx @playwright/mcp-server)",

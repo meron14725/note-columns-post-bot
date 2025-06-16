@@ -11,13 +11,16 @@ from urllib.parse import urljoin, quote
 import requests
 from bs4 import BeautifulSoup
 
-from backend.app.models.article import (
+from app.models.article import (
     Article, 
     NoteArticleMetadata as NoteArticleData,  # エイリアスで互換性維持
     ArticleReference
 )
-from backend.app.utils.logger import get_logger, log_execution_time
-from backend.app.utils.rate_limiter import rate_limiter
+from app.utils.logger import get_logger, log_execution_time
+from app.utils.rate_limiter import rate_limiter
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
 from config.config import config 
 
 logger = get_logger(__name__)
@@ -146,6 +149,35 @@ class NoteScraper:
         """
         # First, collect article list
         article_list = await self.collect_article_list()
+        
+        # Save article references to database for deduplication
+        from app.repositories.article_reference_repository import ArticleReferenceRepository
+        from app.models.article_reference import ArticleReference
+        
+        article_ref_repo = ArticleReferenceRepository()
+        
+        # Convert to ArticleReference objects and save
+        article_references = []
+        for ref in article_list:
+            try:
+                article_ref = ArticleReference(
+                    key=ref.get('key', ref['id']),  # Use id as fallback for key
+                    urlname=ref.get('urlname', ref['id']),  # Use id as fallback for urlname
+                    category=ref['category'],
+                    title=ref.get('title'),
+                    author=ref.get('author'),
+                    thumbnail=ref.get('thumbnail'),
+                    published_at=ref.get('published_at'),
+                )
+                article_references.append(article_ref)
+            except Exception as e:
+                logger.warning(f"Failed to create ArticleReference for {ref.get('id', 'unknown')}: {e}")
+                continue
+        
+        # Save references to database
+        if article_references:
+            saved_count = article_ref_repo.save_references(article_references)
+            logger.info(f"Saved {saved_count} article references to database")
         
         # Convert article references to Article objects without fetching details
         # (Details can be fetched later using collect_article_with_details if needed)

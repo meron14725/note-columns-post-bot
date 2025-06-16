@@ -11,13 +11,16 @@ from urllib.parse import urljoin, quote
 import requests
 from bs4 import BeautifulSoup
 
-from backend.app.models.article import (
+from app.models.article import (
     Article, 
     NoteArticleMetadata as NoteArticleData,  # エイリアスで互換性維持
     ArticleReference
 )
-from backend.app.utils.logger import get_logger, log_execution_time
-from backend.app.utils.rate_limiter import rate_limiter
+from app.utils.logger import get_logger, log_execution_time
+from app.utils.rate_limiter import rate_limiter
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
 from config.config import config 
 
 logger = get_logger(__name__)
@@ -146,6 +149,35 @@ class NoteScraper:
         """
         # First, collect article list
         article_list = await self.collect_article_list()
+        
+        # Save article references to database for deduplication
+        from app.repositories.article_reference_repository import ArticleReferenceRepository
+        from app.models.article_reference import ArticleReference
+        
+        article_ref_repo = ArticleReferenceRepository()
+        
+        # Convert to ArticleReference objects and save
+        article_references = []
+        for ref in article_list:
+            try:
+                article_ref = ArticleReference(
+                    key=ref.get('key', ref['id']),  # Use id as fallback for key
+                    urlname=ref.get('urlname', ref['id']),  # Use id as fallback for urlname
+                    category=ref['category'],
+                    title=ref.get('title'),
+                    author=ref.get('author'),
+                    thumbnail=ref.get('thumbnail'),
+                    published_at=ref.get('published_at'),
+                )
+                article_references.append(article_ref)
+            except Exception as e:
+                logger.warning(f"Failed to create ArticleReference for {ref.get('id', 'unknown')}: {e}")
+                continue
+        
+        # Save references to database
+        if article_references:
+            saved_count = article_ref_repo.save_references(article_references)
+            logger.info(f"Saved {saved_count} article references to database")
         
         # Convert article references to Article objects without fetching details
         # (Details can be fetched later using collect_article_with_details if needed)
@@ -330,6 +362,14 @@ class NoteScraper:
             title = note.get('name', '')
             
             if not key or not title:
+                return None
+            
+            # Check if this is a paid article and exclude it
+            price = note.get('price', 0)
+            can_read = note.get('can_read', True)
+            
+            if price > 0 or not can_read:
+                logger.info(f"Excluding paid article: '{title}' (price: ¥{price}, can_read: {can_read})")
                 return None
             
             # Extract user data
@@ -622,6 +662,14 @@ class NoteScraper:
             if not key or not title:
                 return None
             
+            # Check if this is a paid article and exclude it
+            price = note.get('price', 0)
+            can_read = note.get('can_read', True)
+            
+            if price > 0 or not can_read:
+                logger.info(f"Excluding paid article: '{title}' (price: ¥{price}, can_read: {can_read})")
+                return None
+            
             # Build URL
             user_data = note.get('user', {})
             urlname = user_data.get('urlname', '')
@@ -824,6 +872,14 @@ class NoteScraper:
             key = item.get('key', original_note_id)  # Use key if available, otherwise use ID
             title = item.get('name', '')
             if not key or not title:
+                return None
+            
+            # Check if this is a paid article and exclude it
+            price = item.get('price', 0)
+            can_read = item.get('canRead', True)
+            
+            if price > 0 or not can_read:
+                logger.info(f"Excluding paid article from note item: '{title}' (price: ¥{price}, can_read: {can_read})")
                 return None
             
             # Extract user data
@@ -1087,6 +1143,14 @@ class NoteScraper:
                 logger.warning(f"Could not find note with key {key} in __INITIAL_STATE__")
                 return None
             
+            # Check if this is a paid article and exclude it
+            price = note.get('price', 0)
+            can_read = note.get('canRead', True)
+            
+            if price > 0 or not can_read:
+                logger.info(f"Excluding paid article from initial state: '{note.get('name', 'Unknown')}' (price: ¥{price}, can_read: {can_read})")
+                return None
+            
             # Extract article details
             detail = {
                 'id': str(note.get('id', key)),
@@ -1166,6 +1230,18 @@ class NoteScraper:
         """
         try:
             soup = BeautifulSoup(html, 'html.parser')
+            
+            # Check if this is a paid article by looking for payment indicators
+            # Look for "ここから先は" text which indicates paid content
+            paid_indicators = [
+                soup.find(text=lambda text: text and "ここから先は" in text),
+                soup.find("button", text=lambda text: text and "購入手続きへ" in text),
+                soup.find(text=lambda text: text and "¥" in text and any(char.isdigit() for char in text))
+            ]
+            
+            if any(indicator for indicator in paid_indicators):
+                logger.info(f"Excluding paid article detected in HTML: {url}")
+                return None
             
             # Extract title - prefer og:title over title tag
             title = 'Unknown'

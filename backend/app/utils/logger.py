@@ -5,6 +5,9 @@ import logging.handlers
 import sys
 from pathlib import Path
 from typing import Optional
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
 from config.config import config
 
 

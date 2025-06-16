@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS articles (
     category TEXT NOT NULL,             -- category (entertainment)
     collected_at DATETIME DEFAULT CURRENT_TIMESTAMP,  -- collection timestamp
     is_evaluated BOOLEAN DEFAULT FALSE, -- evaluation flag
-    evaluation_retry_count INTEGER DEFAULT 0, -- retry evaluation count
+    evaluation_retry_count INTEGER DEFAULT 0, -- number of evaluation retries
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -50,10 +50,10 @@ CREATE TABLE IF NOT EXISTS evaluations (
     entertainment_score INTEGER NOT NULL, -- entertainment score (0-30)
     total_score INTEGER NOT NULL,      -- total score (0-100)
     ai_summary TEXT NOT NULL,           -- AI-generated summary
-    is_retry_evaluation BOOLEAN DEFAULT FALSE, -- retry evaluation flag
-    original_evaluation_id INTEGER,    -- original evaluation ID (for retry)
-    retry_reason TEXT,                  -- retry reason
-    evaluation_metadata TEXT,           -- additional metadata (JSON)
+    is_retry_evaluation BOOLEAN DEFAULT FALSE, -- whether this is a retry evaluation
+    original_evaluation_id INTEGER,     -- original evaluation ID for retry
+    retry_reason TEXT,                  -- reason for retry evaluation
+    evaluation_metadata TEXT,           -- additional evaluation metadata (JSON)
     evaluated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE,

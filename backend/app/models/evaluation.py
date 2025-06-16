@@ -74,14 +74,16 @@ class AIEvaluationResult(BaseModel):
     
     def to_evaluation(self, article_id: str, is_retry: bool = False, 
                      original_evaluation_id: Optional[int] = None,
-                     retry_reason: Optional[str] = None) -> Evaluation:
+                     retry_reason: Optional[str] = None,
+                     evaluation_metadata: Optional[Dict[str, Any]] = None) -> Evaluation:
         """Convert to Evaluation model.
         
         Args:
             article_id: Article ID
             is_retry: Whether this is a retry evaluation
             original_evaluation_id: Original evaluation ID for retry
-            retry_reason: Reason for retry
+            retry_reason: Reason for retry evaluation
+            evaluation_metadata: Additional evaluation metadata
             
         Returns:
             Evaluation instance
@@ -96,7 +98,7 @@ class AIEvaluationResult(BaseModel):
             is_retry_evaluation=is_retry,
             original_evaluation_id=original_evaluation_id,
             retry_reason=retry_reason,
-            evaluation_metadata=self.retry_metadata,
+            evaluation_metadata=evaluation_metadata,
         )
 
 
@@ -120,6 +122,10 @@ class ArticleWithEvaluation(BaseModel):
     entertainment_score: int
     total_score: int
     ai_summary: str
+    is_retry_evaluation: bool = False
+    original_evaluation_id: Optional[int] = None
+    retry_reason: Optional[str] = None
+    evaluation_metadata: Optional[Dict[str, Any]] = None
     evaluated_at: datetime
     
     class Config:

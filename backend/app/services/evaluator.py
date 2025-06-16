@@ -191,11 +191,12 @@ class ArticleEvaluator:
         system_prompt = self.evaluation_config.get("system_prompt", "")
         user_prompt_template = self.evaluation_config.get("user_prompt_template", "")
         
-        # Format user prompt with article data including article ID
+        # Format user prompt with article data including article ID and category
         user_prompt = user_prompt_template.format(
             article_id=article.id,
             title=article.title,
             author=article.author,
+            category=article.category or "未分類",
             content_preview=content
         )
         
@@ -473,11 +474,12 @@ class ArticleEvaluator:
         system_prompt = self.retry_evaluation_config.get("system_prompt", "")
         user_prompt_template = self.retry_evaluation_config.get("user_prompt_template", "")
         
-        # Format user prompt with article data
+        # Format user prompt with article data including category
         user_prompt = user_prompt_template.format(
             article_id=article.id,
             title=article.title,
             author=article.author,
+            category=article.category or "未分類",
             content_preview=content
         )
         

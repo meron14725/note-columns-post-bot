@@ -38,7 +38,13 @@
       "Bash(git rm:*)",
       "Bash(git rebase:*)",
       "Bash(git stash:*)",
-      "Bash(gh issue create:*)"
+      "Bash(gh issue create:*)",
+      "Bash(uv run:*)",
+      "Bash(python3:*)",
+      "Bash(gh issue create:*)",
+      "Bash(git checkout:*)",
+      "Bash(open:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

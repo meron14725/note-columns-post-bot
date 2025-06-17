@@ -1,9 +1,10 @@
 """Application configuration module."""
 
-import os
 import json
+import os
 from pathlib import Path
-from typing import Any, Dict, Optional, List  # Listを追加
+from typing import Any  # Listを追加
+
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -16,7 +17,9 @@ BACKEND_DIR = PROJECT_ROOT / "backend"
 DOCS_DIR = PROJECT_ROOT / "docs"
 
 # Database configuration
-DATABASE_PATH = os.getenv("DATABASE_PATH", str(BACKEND_DIR / "database" / "entertainment_columns.db"))
+DATABASE_PATH = os.getenv(
+    "DATABASE_PATH", str(BACKEND_DIR / "database" / "entertainment_columns.db")
+)
 
 # API Keys
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
@@ -40,39 +43,39 @@ LOGS_DIR = BACKEND_DIR / "logs"
 JSON_DATA_DIR = DOCS_DIR / "data"
 
 
-def load_json_config(filename: str) -> Dict[str, Any]:
+def load_json_config(filename: str) -> dict[str, Any]:
     """Load JSON configuration file.
-    
+
     Args:
         filename: Name of the JSON file (with .json extension)
-        
+
     Returns:
         Dictionary containing configuration data
-        
+
     Raises:
         FileNotFoundError: If config file doesn't exist
         json.JSONDecodeError: If JSON is invalid
     """
     config_path = CONFIG_DIR / filename
-    
+
     if not config_path.exists():
         raise FileNotFoundError(f"Configuration file not found: {config_path}")
-    
-    with open(config_path, "r", encoding="utf-8") as f:
+
+    with open(config_path, encoding="utf-8") as f:
         return json.load(f)
 
 
-def get_urls_config() -> Dict[str, Any]:
+def get_urls_config() -> dict[str, Any]:
     """Get URLs configuration."""
     return load_json_config("urls_config.json")
 
 
-def get_prompt_settings() -> Dict[str, Any]:
+def get_prompt_settings() -> dict[str, Any]:
     """Get AI prompt settings."""
     return load_json_config("prompt_settings.json")
 
 
-def get_posting_schedule() -> Dict[str, Any]:
+def get_posting_schedule() -> dict[str, Any]:
     """Get posting schedule configuration."""
     return load_json_config("posting_schedule.json")
 
@@ -80,36 +83,40 @@ def get_posting_schedule() -> Dict[str, Any]:
 # Validation functions
 def validate_required_env_vars() -> None:
     """Validate that required environment variables are set.
-    
+
     Raises:
         ValueError: If required environment variables are missing
     """
     required_vars = [
         ("GROQ_API_KEY", GROQ_API_KEY),
     ]
-    
+
     optional_twitter_vars = [
         ("TWITTER_API_KEY", TWITTER_API_KEY),
         ("TWITTER_API_SECRET", TWITTER_API_SECRET),
         ("TWITTER_ACCESS_TOKEN", TWITTER_ACCESS_TOKEN),
         ("TWITTER_ACCESS_TOKEN_SECRET", TWITTER_ACCESS_TOKEN_SECRET),
     ]
-    
+
     missing_vars = []
-    
+
     # Check required variables
     for var_name, var_value in required_vars:
         if not var_value:
             missing_vars.append(var_name)
-    
+
     # Check if all Twitter variables are set together (if any is set)
     twitter_vars_set = [bool(var_value) for _, var_value in optional_twitter_vars]
     if any(twitter_vars_set) and not all(twitter_vars_set):
-        missing_twitter = [var_name for var_name, var_value in optional_twitter_vars if not var_value]
+        missing_twitter = [
+            var_name for var_name, var_value in optional_twitter_vars if not var_value
+        ]
         missing_vars.extend(missing_twitter)
-    
+
     if missing_vars:
-        raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
+        raise ValueError(
+            f"Missing required environment variables: {', '.join(missing_vars)}"
+        )
 
 
 def ensure_directories() -> None:
@@ -121,7 +128,7 @@ def ensure_directories() -> None:
         JSON_DATA_DIR / "archives",
         BACKEND_DIR / "database",
     ]
-    
+
     for directory in directories:
         directory.mkdir(parents=True, exist_ok=True)
 
@@ -138,7 +145,7 @@ DEFAULT_CONFIG = {
 
 class Config:
     """Configuration class for easy access to settings."""
-    
+
     def __init__(self) -> None:
         """Initialize configuration."""
         self.database_path = DATABASE_PATH
@@ -154,7 +161,7 @@ class Config:
         self.github_pages_url = GITHUB_PAGES_URL
         self.log_level = LOG_LEVEL
         self.log_file_path = LOG_FILE_PATH
-        
+
         # Load JSON configurations
         try:
             self.urls_config = get_urls_config()
@@ -165,34 +172,37 @@ class Config:
             self.urls_config = {}
             self.prompt_settings = {}
             self.posting_schedule = {}
-    
+
     @property
     def has_twitter_credentials(self) -> bool:
         """Check if Twitter credentials are available."""
         return all(self.twitter_credentials.values())
-    
+
     @property
     def has_groq_credentials(self) -> bool:
         """Check if Groq credentials are available."""
         return bool(self.groq_api_key)
-    
-    def get_collection_settings(self) -> Dict[str, Any]:
+
+    def get_collection_settings(self) -> dict[str, Any]:
         """Get collection settings from urls configuration.
-        
+
         Returns:
             Dictionary containing collection settings
         """
-        return self.urls_config.get("collection_settings", {
-            "fetch_article_details": False,
-            "request_delay_seconds": 1.0,
-            "max_retries": 3,
-            "old_article_threshold_days": 1,
-            "stop_after_old_articles": True
-        })
-    
-    def get_collection_urls(self) -> List[Dict[str, Any]]:
+        return self.urls_config.get(
+            "collection_settings",
+            {
+                "fetch_article_details": False,
+                "request_delay_seconds": 1.0,
+                "max_retries": 3,
+                "old_article_threshold_days": 1,
+                "stop_after_old_articles": True,
+            },
+        )
+
+    def get_collection_urls(self) -> list[dict[str, Any]]:
         """Get collection URLs from configuration.
-        
+
         Returns:
             List of URL configurations
         """

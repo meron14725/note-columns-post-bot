@@ -1,13 +1,14 @@
 """Article data models."""
 
 from datetime import datetime
-from typing import Optional, Dict, Any
+from typing import Any, Optional
+
 from pydantic import BaseModel, Field, HttpUrl
 
 
 class NoteArticleMetadata(BaseModel):
     """Note specific metadata."""
-    
+
     note_type: str = Field(default="TextNote", description="Note type")
     like_count: int = Field(default=0, description="Number of likes")
     price: int = Field(default=0, description="Price in yen")
@@ -18,7 +19,7 @@ class NoteArticleMetadata(BaseModel):
 
 class Article(BaseModel):
     """Article model representing a note article."""
-    
+
     id: str = Field(..., description="Note article ID")
     title: str = Field(..., description="Article title")
     url: HttpUrl = Field(..., description="Article URL")
@@ -27,14 +28,19 @@ class Article(BaseModel):
     author: str = Field(..., description="Author name")
     content_preview: Optional[str] = Field(None, description="Article preview text")
     category: str = Field(..., description="Article category")
-    collected_at: datetime = Field(default_factory=datetime.now, description="Collection timestamp")
+    collected_at: datetime = Field(
+        default_factory=datetime.now, description="Collection timestamp"
+    )
     is_evaluated: bool = Field(False, description="Evaluation status flag")
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
-    note_data: Optional[NoteArticleMetadata] = Field(None, description="Note specific metadata")
-    
+    note_data: Optional[NoteArticleMetadata] = Field(
+        None, description="Note specific metadata"
+    )
+
     class Config:
         """Pydantic configuration."""
+
         json_encoders = {
             datetime: lambda v: v.isoformat(),
             HttpUrl: str,
@@ -43,7 +49,7 @@ class Article(BaseModel):
 
 class ArticleReference(BaseModel):
     """Article reference for list collection (key and urlname)."""
-    
+
     id: str = Field(..., description="Note article ID")
     key: str = Field(..., description="Article key for URL")
     urlname: str = Field(..., description="User URL name")
@@ -54,26 +60,26 @@ class ArticleReference(BaseModel):
     author: str = Field(..., description="Author name")
     category: str = Field(..., description="Article category")
     note_data: Optional[NoteArticleMetadata] = Field(None, description="Note metadata")
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for scraper compatibility."""
         return {
-            'id': self.id,
-            'key': self.key,
-            'urlname': self.urlname,
-            'title': self.title,
-            'url': self.url,
-            'thumbnail': self.thumbnail,
-            'published_at': self.published_at,
-            'author': self.author,
-            'category': self.category,
-            'note_data': self.note_data
+            "id": self.id,
+            "key": self.key,
+            "urlname": self.urlname,
+            "title": self.title,
+            "url": self.url,
+            "thumbnail": self.thumbnail,
+            "published_at": self.published_at,
+            "author": self.author,
+            "category": self.category,
+            "note_data": self.note_data,
         }
 
 
 class ArticleCreateRequest(BaseModel):
     """Article creation request model."""
-    
+
     id: str
     title: str
     url: str
@@ -87,7 +93,7 @@ class ArticleCreateRequest(BaseModel):
 
 class ArticleResponse(BaseModel):
     """Article response model for API."""
-    
+
     id: str
     title: str
     url: str
@@ -101,9 +107,10 @@ class ArticleResponse(BaseModel):
     total_score: Optional[int] = None
     ai_summary: Optional[str] = None
     note_data: Optional[NoteArticleMetadata] = None
-    
+
     class Config:
         """Pydantic configuration."""
+
         json_encoders = {
             datetime: lambda v: v.isoformat(),
         }
@@ -111,7 +118,7 @@ class ArticleResponse(BaseModel):
 
 class NoteApiResponse(BaseModel):
     """Note API response model."""
-    
+
     data: dict
     status: int = 200
     message: str = "success"
@@ -119,10 +126,10 @@ class NoteApiResponse(BaseModel):
 
 class NoteArticleData(BaseModel):
     """Note article data from API response (for backward compatibility)."""
-    
+
     id: str
     name: str  # title in note API
-    key: str   # URL key
+    key: str  # URL key
     user: dict
     publishAt: Optional[str] = None
     publish_at: Optional[str] = None  # Alternative field name
@@ -134,13 +141,13 @@ class NoteArticleData(BaseModel):
     price: int = Field(default=0)
     can_read: bool = Field(default=True)
     is_liked: bool = Field(default=False)
-    
+
     def to_article(self, category: str) -> Article:
         """Convert to Article model.
-        
+
         Args:
             category: Article category
-            
+
         Returns:
             Article instance
         """
@@ -149,55 +156,56 @@ class NoteArticleData(BaseModel):
         if publish_date_str:
             try:
                 published_at = datetime.fromisoformat(
-                    publish_date_str.replace('Z', '+00:00').replace('+09:00', '+0900')
+                    publish_date_str.replace("Z", "+00:00").replace("+09:00", "+0900")
                 )
             except:
                 published_at = datetime.now()
         else:
             published_at = datetime.now()
-        
+
         # Extract content preview (first 200 characters of body)
         content_preview = None
         if self.body:
             # Remove HTML tags and get preview
             import re
-            clean_body = re.sub('<[^<]+?>', '', self.body)
+
+            clean_body = re.sub("<[^<]+?>", "", self.body)
             content_preview = clean_body[:200].strip()
-        
+
         # Construct URL
-        user_key = self.user.get('urlname', '')
+        user_key = self.user.get("urlname", "")
         article_url = f"https://note.com/{user_key}/n/{self.key}"
-        
+
         # Get thumbnail
         thumbnail = self.eyecatch or self.eyecatch_url
-        
+
         # Create metadata
         note_metadata = NoteArticleMetadata(
             note_type=self.type,
             like_count=self.like_count,
             price=self.price,
             can_read=self.can_read,
-            is_liked=self.is_liked
+            is_liked=self.is_liked,
         )
-        
+
         return Article(
             id=str(self.id),
             title=self.name,
             url=article_url,
             thumbnail=thumbnail,
             published_at=published_at,
-            author=self.user.get('nickname', 'Unknown'),
+            author=self.user.get("nickname", "Unknown"),
             content_preview=content_preview,
             category=category,
-            note_data=note_metadata
+            note_data=note_metadata,
         )
-    
+
     def to_reference(self, category: str) -> ArticleReference:
         """Convert to ArticleReference for list collection.
-        
+
         Args:
             category: Article category
-            
+
         Returns:
             ArticleReference instance
         """
@@ -206,29 +214,29 @@ class NoteArticleData(BaseModel):
         if publish_date_str:
             try:
                 published_at = datetime.fromisoformat(
-                    publish_date_str.replace('Z', '+00:00').replace('+09:00', '+0900')
+                    publish_date_str.replace("Z", "+00:00").replace("+09:00", "+0900")
                 )
             except:
                 published_at = datetime.now()
         else:
             published_at = datetime.now()
-        
+
         # Construct URL
-        user_key = self.user.get('urlname', '')
+        user_key = self.user.get("urlname", "")
         article_url = f"https://note.com/{user_key}/n/{self.key}"
-        
+
         # Get thumbnail
         thumbnail = self.eyecatch or self.eyecatch_url
-        
+
         # Create metadata
         note_metadata = NoteArticleMetadata(
             note_type=self.type,
             like_count=self.like_count,
             price=self.price,
             can_read=self.can_read,
-            is_liked=self.is_liked
+            is_liked=self.is_liked,
         )
-        
+
         return ArticleReference(
             id=str(self.id),
             key=self.key,
@@ -237,7 +245,7 @@ class NoteArticleData(BaseModel):
             url=article_url,
             thumbnail=thumbnail,
             published_at=published_at,
-            author=self.user.get('nickname', 'Unknown'),
+            author=self.user.get("nickname", "Unknown"),
             category=category,
-            note_data=note_metadata
+            note_data=note_metadata,
         )

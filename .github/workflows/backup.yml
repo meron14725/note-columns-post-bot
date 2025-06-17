@@ -130,7 +130,7 @@ jobs:
           echo "\`\`\`" >> backup_report.md
           
       - name: Upload backup artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: database-backup-${{ env.BACKUP_DATE }}
           path: ${{ env.BACKUP_FILE }}
@@ -138,26 +138,15 @@ jobs:
           
       - name: Create release with backup
         if: github.ref == 'refs/heads/main'
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ncipollo/release-action@v1
         with:
-          tag_name: backup-${{ env.BACKUP_DATE }}
-          release_name: Database Backup - ${{ env.BACKUP_DATE }}
-          body_path: backup_report.md
+          tag: backup-${{ env.BACKUP_DATE }}
+          name: Database Backup - ${{ env.BACKUP_DATE }}
+          bodyFile: backup_report.md
+          artifacts: ${{ env.BACKUP_FILE }}
           draft: false
           prerelease: false
-          
-      - name: Upload backup to release
-        if: github.ref == 'refs/heads/main'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.BACKUP_FILE }}
-          asset_name: ${{ env.BACKUP_FILE }}
-          asset_content_type: application/gzip
+          token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Clean up old artifacts
         run: |

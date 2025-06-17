@@ -4,7 +4,21 @@
       "Bash(cp:*)",
       "Bash(PYTHONPATH=. python:*)",
       "Bash(sqlite3:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(git config:*)",
+      "Bash(git stash:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Bash(uv venv:*)",
+      "Bash(export:*)",
+      "Bash(source:*)",
+      "Bash(uv pip install:*)",
+      "Bash(python:*)",
+      "Bash(grep:*)",
+      "Bash(git checkout:*)",
+      "Bash(git reset:*)"
     ],
     "deny": []
   }

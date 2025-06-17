@@ -6,9 +6,6 @@ import sys
 from pathlib import Path
 from typing import Optional, List
 
-# Add the parent directory to sys.path for imports
-sys.path.append(str(Path(__file__).parent.parent.parent))
-
 from backend.app.services.scraper import NoteScraper
 from backend.app.services.evaluator import ArticleEvaluator
 from backend.app.services.json_generator import JSONGenerator

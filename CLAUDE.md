@@ -59,6 +59,45 @@
    - アップグレード：`uv add --dev package --upgrade-package package`
    - 禁止事項：`uv pip install`、`@latest` 構文の使用
 
+## uvプロジェクトパッケージ化のルール
+
+   このプロジェクトはuvを使用したPythonパッケージとして構成されています：
+
+   **パッケージ構成**:
+   - `pyproject.toml`でプロジェクト設定を管理
+   - `backend`と`config`をPythonパッケージとして構成
+   - 各ディレクトリに`__init__.py`を配置してパッケージ化
+
+   **開発環境セットアップ**:
+   ```bash
+   # 仮想環境作成
+   uv venv
+   
+   # 仮想環境有効化
+   source .venv/bin/activate
+   
+   # プロジェクトをパッケージとしてインストール
+   uv pip install -e .
+   ```
+
+   **importルール**:
+   - 絶対importを使用：`from backend.app.models import Article`
+   - 相対importは禁止：`from .models import Article`
+   - PYTHONPATHの設定は不要（パッケージ化により自動解決）
+
+   **実行方法**:
+   ```bash
+   # パッケージ化後は直接実行可能
+   python backend/batch/daily_process.py
+   
+   # PYTHONPATHの設定は不要
+   ```
+
+   **重要事項**:
+   - 新しいディレクトリにはPythonファイルがある場合は`__init__.py`を必ず作成
+   - `pyproject.toml`の`packages`設定を更新して新しいパッケージを追加
+   - すべての開発者は`uv pip install -e .`でプロジェクトをインストール
+
 2. コード品質
 
    - すべてのコードに型ヒントを必須とする

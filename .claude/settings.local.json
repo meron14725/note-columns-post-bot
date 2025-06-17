@@ -27,7 +27,9 @@
       "Bash(find:*)",
       "Bash(gh pr checks:*)",
       "Bash(gh run view:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(uv run ruff check:*)",
+      "Bash(uv run:*)"
     ],
     "deny": []
   }

@@ -1,12 +1,13 @@
 """Test configuration and fixtures for pytest."""
 
-import pytest
 import asyncio
-import tempfile
 import os
+import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-from datetime import datetime, timezone
+
+import pytest
 
 from backend.app.models.article import Article, NoteArticleMetadata
 from backend.app.models.evaluation import Evaluation
@@ -38,8 +39,8 @@ def sample_article():
             comment_count=5,
             price=0,
             can_read=True,
-            is_liked=False
-        )
+            is_liked=False,
+        ),
     )
 
 
@@ -54,7 +55,7 @@ def sample_evaluation():
         entertainment_score=20,
         total_score=80,
         ai_summary="この記事は質の高いエンタメコンテンツです。",
-        evaluated_at=datetime.now(timezone.utc)
+        evaluated_at=datetime.now(timezone.utc),
     )
 
 
@@ -78,8 +79,8 @@ def sample_articles_list():
                 comment_count=i,
                 price=0,
                 can_read=True,
-                is_liked=False
-            )
+                is_liked=False,
+            ),
         )
         articles.append(article)
     return articles
@@ -89,14 +90,18 @@ def sample_articles_list():
 def mock_groq_client():
     """Create a mock Groq client for testing."""
     mock_client = MagicMock()
-    
+
     # Default successful response
     mock_response = MagicMock()
     mock_response.choices = [
-        MagicMock(message=MagicMock(content='{"article_id": "test", "quality_score": 30, "originality_score": 20, "entertainment_score": 20, "total_score": 70, "ai_summary": "テスト評価です。"}'))
+        MagicMock(
+            message=MagicMock(
+                content='{"article_id": "test", "quality_score": 30, "originality_score": 20, "entertainment_score": 20, "total_score": 70, "ai_summary": "テスト評価です。"}'
+            )
+        )
     ]
     mock_client.chat.completions.create.return_value = mock_response
-    
+
     return mock_client
 
 
@@ -104,11 +109,13 @@ def mock_groq_client():
 def mock_requests_session():
     """Create a mock requests session for testing."""
     mock_session = MagicMock()
-    
+
     # Default successful response
     mock_response = MagicMock()
     mock_response.status_code = 200
-    mock_response.text = '<html><head><title>Test</title></head><body>Test content</body></html>'
+    mock_response.text = (
+        "<html><head><title>Test</title></head><body>Test content</body></html>"
+    )
     mock_response.json.return_value = {
         "data": {
             "sections": [
@@ -120,18 +127,21 @@ def mock_requests_session():
                             "name": "テスト記事",
                             "price": 0,
                             "can_read": True,
-                            "user": {"urlname": "test_user", "nickname": "テストユーザー"},
+                            "user": {
+                                "urlname": "test_user",
+                                "nickname": "テストユーザー",
+                            },
                             "publish_at": "2024-01-01T00:00:00.000Z",
-                            "eyecatch_url": "https://example.com/image.jpg"
+                            "eyecatch_url": "https://example.com/image.jpg",
                         }
                     ]
                 }
             ],
-            "isLast": True
+            "isLast": True,
         }
     }
     mock_session.get.return_value = mock_response
-    
+
     return mock_session
 
 
@@ -143,7 +153,7 @@ def test_config():
             {
                 "name": "テストカテゴリ",
                 "url": "https://note.com/interests/test",
-                "category": "test"
+                "category": "test",
             }
         ],
         "collection_settings": {
@@ -151,15 +161,15 @@ def test_config():
             "old_article_threshold_days": 1,
             "max_retries": 2,
             "stop_after_old_articles": True,
-            "fetch_article_details": False
+            "fetch_article_details": False,
         },
         "rate_limit": {
             "groq": {
                 "requests_per_minute": 30,
                 "max_retries": 3,
-                "retry_delay_seconds": 2.0
+                "retry_delay_seconds": 2.0,
             }
-        }
+        },
     }
 
 
@@ -168,9 +178,9 @@ def temp_database():
     """Create a temporary database for testing."""
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as temp_file:
         db_path = temp_file.name
-    
+
     yield db_path
-    
+
     # Cleanup
     if os.path.exists(db_path):
         os.unlink(db_path)
@@ -193,9 +203,9 @@ def mock_environment_variables():
         "TWITTER_API_SECRET": "test_twitter_api_secret",
         "TWITTER_ACCESS_TOKEN": "test_twitter_access_token",
         "TWITTER_ACCESS_TOKEN_SECRET": "test_twitter_access_token_secret",
-        "DRY_RUN": "false"
+        "DRY_RUN": "false",
     }
-    
+
     with patch.dict(os.environ, env_vars):
         yield env_vars
 
@@ -214,7 +224,7 @@ def sample_groq_responses():
         "invalid_json": "This is not valid JSON",
         "missing_fields": '{"article_id": "test_123"}',
         "out_of_range_scores": '{"article_id": "test_123", "quality_score": 50, "originality_score": 40, "entertainment_score": 35, "total_score": 125, "ai_summary": "テスト"}',
-        "empty_summary": '{"article_id": "test_123", "quality_score": 30, "originality_score": 20, "entertainment_score": 20, "total_score": 70, "ai_summary": ""}'
+        "empty_summary": '{"article_id": "test_123", "quality_score": 30, "originality_score": 20, "entertainment_score": 20, "total_score": 70, "ai_summary": ""}',
     }
 
 
@@ -235,25 +245,20 @@ def sample_note_api_responses():
                                 "can_read": True,
                                 "user": {
                                     "urlname": "test_user",
-                                    "nickname": "テストユーザー"
+                                    "nickname": "テストユーザー",
                                 },
                                 "publish_at": "2024-01-01T12:00:00.000+09:00",
                                 "eyecatch_url": "https://example.com/image.jpg",
                                 "like_count": 10,
-                                "type": "TextNote"
+                                "type": "TextNote",
                             }
                         ]
                     }
                 ],
-                "isLast": False
+                "isLast": False,
             }
         },
-        "empty_response": {
-            "data": {
-                "sections": [],
-                "isLast": True
-            }
-        },
+        "empty_response": {"data": {"sections": [], "isLast": True}},
         "paid_article_response": {
             "data": {
                 "sections": [
@@ -267,15 +272,15 @@ def sample_note_api_responses():
                                 "can_read": False,
                                 "user": {
                                     "urlname": "paid_user",
-                                    "nickname": "有料ユーザー"
-                                }
+                                    "nickname": "有料ユーザー",
+                                },
                             }
                         ]
                     }
                 ],
-                "isLast": True
+                "isLast": True,
             }
-        }
+        },
     }
 
 
@@ -285,13 +290,13 @@ def setup_test_environment():
     # Ensure test directory exists
     test_dir = Path("backend/tests")
     test_dir.mkdir(exist_ok=True)
-    
+
     # Set test environment variables
     os.environ.setdefault("TESTING", "true")
     os.environ.setdefault("LOG_LEVEL", "DEBUG")
-    
+
     yield
-    
+
     # Cleanup after test
     if "TESTING" in os.environ:
         del os.environ["TESTING"]

@@ -52,6 +52,8 @@ include = '\.pyi?$'
 [tool.ruff]
 line-length = 88
 target-version = "py39"
+
+[tool.ruff.lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -64,6 +66,8 @@ select = [
 ignore = [
     "E501",  # line too long, handled by black
     "B008",  # do not perform function call in argument defaults
+    "E722",  # bare except
+    "B011",  # assert false usage
 ]
 
 [tool.mypy]
@@ -83,7 +87,10 @@ strict_equality = true
 
 [dependency-groups]
 dev = [
+    "black>=25.1.0",
+    "mypy>=1.16.1",
     "pytest>=8.4.0",
     "pytest-asyncio>=1.0.0",
     "pytest-cov>=6.2.1",
+    "ruff>=0.11.13",
 ]

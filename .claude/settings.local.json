@@ -18,7 +18,11 @@
       "Bash(python:*)",
       "Bash(grep:*)",
       "Bash(git checkout:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(gh pr view:*)",
+      "Bash(ruff check:*)",
+      "Bash(black:*)"
     ],
     "deny": []
   }

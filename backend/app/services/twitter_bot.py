@@ -5,6 +5,8 @@ from typing import Any, Optional
 
 import tweepy
 
+import os
+
 from backend.app.models.evaluation import ArticleWithEvaluation
 from backend.app.repositories.article_repository import ArticleRepository
 from backend.app.utils.logger import get_logger, log_execution_time

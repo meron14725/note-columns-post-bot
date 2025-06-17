@@ -8,6 +8,10 @@ from typing import Any, Optional
 
 from groq import Groq
 
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
+
 from backend.app.models.article import Article
 from backend.app.models.evaluation import AIEvaluationResult, Evaluation
 from backend.app.utils.logger import get_logger, log_execution_time

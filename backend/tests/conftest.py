@@ -66,13 +66,13 @@ def sample_articles_list():
     for i in range(5):
         article = Article(
             id=f"test_article_{i}",
-            title=f"テスト記事 {i+1}",
+            title=f"テスト記事 {i + 1}",
             url=f"https://note.com/user{i}/n/test_article_{i}",
             thumbnail=f"https://example.com/thumbnail{i}.jpg",
             published_at=datetime.now(timezone.utc),
-            author=f"テストユーザー{i+1}",
+            author=f"テストユーザー{i + 1}",
             category="entertainment",
-            content_preview=f"これはテスト記事{i+1}の内容です。",
+            content_preview=f"これはテスト記事{i + 1}の内容です。",
             note_data=NoteArticleMetadata(
                 note_type="TextNote",
                 like_count=i * 2,

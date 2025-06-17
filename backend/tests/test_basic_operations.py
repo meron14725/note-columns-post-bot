@@ -132,7 +132,6 @@ class TestDryRunExecution:
             patch("backend.app.services.json_generator.JSONGenerator") as mock_json_gen,
             patch("backend.app.utils.database.db_manager"),
         ):
-
             # Setup mocks
             mock_scraper_instance = MagicMock()
             mock_scraper.return_value = mock_scraper_instance

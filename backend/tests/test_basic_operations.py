@@ -70,9 +70,9 @@ class TestImports:
         for module_name, class_name in test_imports:
             try:
                 module = __import__(module_name, fromlist=[class_name])
-                assert hasattr(
-                    module, class_name
-                ), f"{class_name} not found in {module_name}"
+                assert hasattr(module, class_name), (
+                    f"{class_name} not found in {module_name}"
+                )
             except ImportError as e:
                 pytest.fail(f"Failed to import {class_name} from {module_name}: {e}")
 
@@ -132,7 +132,6 @@ class TestDryRunExecution:
             patch("backend.app.services.json_generator.JSONGenerator") as mock_json_gen,
             patch("backend.app.utils.database.db_manager"),
         ):
-
             # Setup mocks
             mock_scraper_instance = MagicMock()
             mock_scraper.return_value = mock_scraper_instance

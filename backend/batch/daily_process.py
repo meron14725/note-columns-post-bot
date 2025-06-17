@@ -132,7 +132,7 @@ class DailyBatchProcessor:
                 for i, ref in enumerate(new_article_refs):
                     try:
                         logger.info(
-                            f"[{i+1}/{len(new_article_refs)}] Processing: {ref['title'][:50]}..."
+                            f"[{i + 1}/{len(new_article_refs)}] Processing: {ref['title'][:50]}..."
                         )
 
                         # Get session tokens if not already obtained
@@ -237,7 +237,7 @@ class DailyBatchProcessor:
                         # Progress checkpoint every 10 articles
                         if (i + 1) % 10 == 0:
                             logger.info(
-                                f"Progress: {i+1}/{len(new_article_refs)} articles processed, {evaluations_count} evaluations completed"
+                                f"Progress: {i + 1}/{len(new_article_refs)} articles processed, {evaluations_count} evaluations completed"
                             )
 
                     except Exception as e:

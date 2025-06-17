@@ -2,12 +2,6 @@
 
 import asyncio
 import sys
-from pathlib import Path
-
-# Add backend directory to Python path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-# Add project root to Python path for config imports
-sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from backend.app.services.scraper import NoteScraper
 from backend.app.services.evaluator import ArticleEvaluator

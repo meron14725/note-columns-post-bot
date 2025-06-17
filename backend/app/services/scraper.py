@@ -11,13 +11,16 @@ from urllib.parse import urljoin, quote
 import requests
 from bs4 import BeautifulSoup
 
-from backend.app.models.article import (
+from app.models.article import (
     Article, 
     NoteArticleMetadata as NoteArticleData,  # エイリアスで互換性維持
     ArticleReference
 )
-from backend.app.utils.logger import get_logger, log_execution_time
-from backend.app.utils.rate_limiter import rate_limiter
+from app.utils.logger import get_logger, log_execution_time
+from app.utils.rate_limiter import rate_limiter
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
 from config.config import config 
 
 logger = get_logger(__name__)

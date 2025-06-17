@@ -183,7 +183,7 @@ class ImprovedDailyBatchProcessor:
                 for i, ref in enumerate(unprocessed_refs):
                     try:
                         logger.info(
-                            f"[{i+1}/{len(unprocessed_refs)}] Processing: {ref.title[:50]}..."
+                            f"[{i + 1}/{len(unprocessed_refs)}] Processing: {ref.title[:50]}..."
                         )
 
                         # Get session tokens if not already obtained

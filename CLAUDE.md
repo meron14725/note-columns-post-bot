@@ -16,12 +16,13 @@
 
    コードの修正・変更時は必ず以下の手順に従う：
    1. **問題修正時はdevelopブランチから新しいブランチを切る**（feature/fix-xxx, fix/issue-xxx 形式）
-   2. **新機能開発時はmainブランチから新しいブランチを切る**（feature/add-xxx 形式）
-   3. ブランチで修正作業を実施
-   4. プルリクエストを作成
-   5. ユーザーがレビュー・マージを行う
-   6. プルリク作成後は必ず新しいブランチで次の作業を行う
-   7. mainブランチに直接コミット・プッシュは禁止
+   2. **新機能開発時もdevelopブランチから新しいブランチを切る**（feature/add-xxx 形式）
+   3. **developブランチでテストを行う前は必ず`git pull`で最新状態にする**
+   4. ブランチで修正作業を実施
+   5. プルリクエストを作成
+   6. ユーザーがレビュー・マージを行う
+   7. プルリク作成後は必ず新しいブランチで次の作業を行う
+   8. mainブランチに直接コミット・プッシュは禁止
    
    **重要**: 一つのプルリクエストは一つのIssueに対応すること。複数のIssueを混在させない。
 
@@ -51,6 +52,54 @@
    3. **データベースの状態**:
       - ローカルテスト後のDBの状態は適切にクリアまたはリセットする
 
+## バッチ処理テスト報告ルール
+
+   バッチ処理テスト実行時は以下の項目を必ず報告する：
+
+   **必須テスト項目**:
+   1. **インポートテスト**: 主要コンポーネントの正常インポート確認
+      ```bash
+      from backend.batch.daily_process import main
+      from backend.app.services.json_generator import JSONGenerator
+      from backend.app.services.evaluator import ArticleEvaluator
+      from backend.app.services.twitter_bot import TwitterBot
+      from backend.app.utils.database import db_manager
+      ```
+   
+   2. **構文チェックテスト**: Python構文解析でのエラー検出
+      ```bash
+      python -m py_compile backend/batch/daily_process.py
+      python -m py_compile backend/batch/post_to_twitter.py
+      ```
+   
+   3. **パッケージ化確認テスト**: uvパッケージとしての正常動作
+      ```bash
+      python -c "import backend; print('Backend package imported successfully')"
+      ```
+
+   **報告フォーマット**:
+   - テスト実行コマンドと結果を明記
+   - 各テストの成功/失敗状況を✅/❌で表示
+   - エラーがある場合は詳細なエラーメッセージを記載
+   - 確認できた項目（PYTHONPATH不要、絶対import動作等）をリスト化
+
+   **例**:
+   ```
+   ### バッチ処理テスト結果
+   1. インポートテスト
+      - ✅ Daily process import successful
+      - ✅ JSON generator import successful
+   2. 構文チェックテスト  
+      - ✅ All batch scripts syntax check passed
+   3. パッケージ化確認テスト
+      - ✅ Backend package imported successfully
+   
+   確認項目:
+   - ✅ PYTHONPATH不要でのモジュール解決
+   - ✅ 絶対import形式の正常動作
+   - ✅ 外部ライブラリの正常インポート
+   ```
+
 1. パッケージ管理
 
    - `uv` のみを使用し、`pip` は絶対に使わない
@@ -58,6 +107,45 @@
    - ツールの実行：`uv run tool`
    - アップグレード：`uv add --dev package --upgrade-package package`
    - 禁止事項：`uv pip install`、`@latest` 構文の使用
+
+## uvプロジェクトパッケージ化のルール
+
+   このプロジェクトはuvを使用したPythonパッケージとして構成されています：
+
+   **パッケージ構成**:
+   - `pyproject.toml`でプロジェクト設定を管理
+   - `backend`と`config`をPythonパッケージとして構成
+   - 各ディレクトリに`__init__.py`を配置してパッケージ化
+
+   **開発環境セットアップ**:
+   ```bash
+   # 仮想環境作成
+   uv venv
+   
+   # 仮想環境有効化
+   source .venv/bin/activate
+   
+   # プロジェクトをパッケージとしてインストール
+   uv pip install -e .
+   ```
+
+   **importルール**:
+   - 絶対importを使用：`from backend.app.models import Article`
+   - 相対importは禁止：`from .models import Article`
+   - PYTHONPATHの設定は不要（パッケージ化により自動解決）
+
+   **実行方法**:
+   ```bash
+   # パッケージ化後は直接実行可能
+   python backend/batch/daily_process.py
+   
+   # PYTHONPATHの設定は不要
+   ```
+
+   **重要事項**:
+   - 新しいディレクトリにはPythonファイルがある場合は`__init__.py`を必ず作成
+   - `pyproject.toml`の`packages`設定を更新して新しいパッケージを追加
+   - すべての開発者は`uv pip install -e .`でプロジェクトをインストール
 
 2. コード品質
 

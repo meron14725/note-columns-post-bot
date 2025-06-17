@@ -5,9 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
 
 from backend.app.models.evaluation import ArticleWithEvaluation
 from backend.app.repositories.article_repository import ArticleRepository

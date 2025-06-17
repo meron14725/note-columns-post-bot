@@ -151,8 +151,8 @@ class NoteScraper:
         article_list = await self.collect_article_list()
         
         # Save article references to database for deduplication
-        from app.repositories.article_reference_repository import ArticleReferenceRepository
-        from app.models.article_reference import ArticleReference
+        from backend.app.repositories.article_reference_repository import ArticleReferenceRepository
+        from backend.app.models.article_reference import ArticleReference
         
         article_ref_repo = ArticleReferenceRepository()
         
@@ -362,6 +362,14 @@ class NoteScraper:
             title = note.get('name', '')
             
             if not key or not title:
+                return None
+            
+            # Check if this is a paid article and exclude it
+            price = note.get('price', 0)
+            can_read = note.get('can_read', True)
+            
+            if price > 0 or not can_read:
+                logger.info(f"Excluding paid article: '{title}' (price: ¥{price}, can_read: {can_read})")
                 return None
             
             # Extract user data
@@ -654,6 +662,14 @@ class NoteScraper:
             if not key or not title:
                 return None
             
+            # Check if this is a paid article and exclude it
+            price = note.get('price', 0)
+            can_read = note.get('can_read', True)
+            
+            if price > 0 or not can_read:
+                logger.info(f"Excluding paid article: '{title}' (price: ¥{price}, can_read: {can_read})")
+                return None
+            
             # Build URL
             user_data = note.get('user', {})
             urlname = user_data.get('urlname', '')
@@ -856,6 +872,14 @@ class NoteScraper:
             key = item.get('key', original_note_id)  # Use key if available, otherwise use ID
             title = item.get('name', '')
             if not key or not title:
+                return None
+            
+            # Check if this is a paid article and exclude it
+            price = item.get('price', 0)
+            can_read = item.get('canRead', True)
+            
+            if price > 0 or not can_read:
+                logger.info(f"Excluding paid article from note item: '{title}' (price: ¥{price}, can_read: {can_read})")
                 return None
             
             # Extract user data
@@ -1119,6 +1143,14 @@ class NoteScraper:
                 logger.warning(f"Could not find note with key {key} in __INITIAL_STATE__")
                 return None
             
+            # Check if this is a paid article and exclude it
+            price = note.get('price', 0)
+            can_read = note.get('canRead', True)
+            
+            if price > 0 or not can_read:
+                logger.info(f"Excluding paid article from initial state: '{note.get('name', 'Unknown')}' (price: ¥{price}, can_read: {can_read})")
+                return None
+            
             # Extract article details
             detail = {
                 'id': str(note.get('id', key)),
@@ -1198,6 +1230,18 @@ class NoteScraper:
         """
         try:
             soup = BeautifulSoup(html, 'html.parser')
+            
+            # Check if this is a paid article by looking for payment indicators
+            # Look for "ここから先は" text which indicates paid content
+            paid_indicators = [
+                soup.find(text=lambda text: text and "ここから先は" in text),
+                soup.find("button", text=lambda text: text and "購入手続きへ" in text),
+                soup.find(text=lambda text: text and "¥" in text and any(char.isdigit() for char in text))
+            ]
+            
+            if any(indicator for indicator in paid_indicators):
+                logger.info(f"Excluding paid article detected in HTML: {url}")
+                return None
             
             # Extract title - prefer og:title over title tag
             title = 'Unknown'

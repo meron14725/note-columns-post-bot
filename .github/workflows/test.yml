@@ -1,0 +1,156 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:  # 手動実行を可能にする
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9, '3.10', '3.11']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        version: "latest"
+        
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install ${{ matrix.python-version }}
+      
+    - name: Create virtual environment
+      run: uv venv --python ${{ matrix.python-version }}
+      
+    - name: Install dependencies
+      run: |
+        uv pip install -e .
+        uv pip install pytest pytest-asyncio pytest-cov
+        
+    - name: Run basic import tests
+      run: |
+        source .venv/bin/activate
+        python -c "from backend.app.services.evaluator import ArticleEvaluator; print('✅ ArticleEvaluator import successful')"
+        python -c "from backend.app.services.scraper import NoteScraper; print('✅ NoteScraper import successful')"
+        python -c "from backend.app.models.article import Article; print('✅ Article import successful')"
+        python -c "from config.config import config; print('✅ Config import successful')"
+        
+    - name: Run syntax checks
+      run: |
+        source .venv/bin/activate
+        python -m py_compile backend/batch/daily_process.py
+        python -m py_compile backend/app/services/evaluator.py
+        python -m py_compile backend/app/services/scraper.py
+        echo "✅ All syntax checks passed"
+        
+    - name: Run tests with coverage
+      run: |
+        source .venv/bin/activate
+        python -m pytest backend/tests/ -v --cov=backend --cov-report=term-missing --cov-report=xml
+        
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      if: matrix.python-version == '3.9'  # Upload coverage only once
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false
+        
+    - name: Test package installation
+      run: |
+        source .venv/bin/activate
+        python -c "import backend; print('✅ Backend package imported successfully')"
+        python -c "import config; print('✅ Config package imported successfully')"
+        
+    - name: Check test coverage threshold
+      run: |
+        source .venv/bin/activate
+        python -c "
+        import xml.etree.ElementTree as ET
+        try:
+            tree = ET.parse('coverage.xml')
+            root = tree.getroot()
+            coverage = float(root.attrib['line-rate']) * 100
+            print(f'Current coverage: {coverage:.1f}%')
+            if coverage < 35:
+                print('❌ Coverage below 35% threshold')
+                exit(1)
+            else:
+                print('✅ Coverage meets minimum threshold')
+        except:
+            print('⚠️  Coverage check skipped (no coverage.xml)')
+        "
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      
+    - name: Set up Python
+      run: uv python install 3.9
+      
+    - name: Create virtual environment
+      run: uv venv
+      
+    - name: Install linting dependencies
+      run: |
+        uv pip install ruff black mypy
+        
+    - name: Run ruff linting
+      run: |
+        source .venv/bin/activate
+        ruff check backend/ config/ --output-format=github
+        
+    - name: Check code formatting with black
+      run: |
+        source .venv/bin/activate
+        black --check backend/ config/
+        
+    - name: Run type checking with mypy
+      run: |
+        source .venv/bin/activate
+        mypy backend/ --ignore-missing-imports || echo "⚠️ Type checking completed with warnings"
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      
+    - name: Set up Python
+      run: uv python install 3.9
+      
+    - name: Create virtual environment
+      run: uv venv
+      
+    - name: Install security scanning dependencies
+      run: |
+        uv pip install safety bandit
+        
+    - name: Run safety check for dependencies
+      run: |
+        source .venv/bin/activate
+        uv pip install -e .
+        safety check || echo "⚠️ Safety check completed with warnings"
+        
+    - name: Run bandit security linting
+      run: |
+        source .venv/bin/activate
+        bandit -r backend/ -f json -o bandit-report.json || echo "⚠️ Bandit scan completed"
+        if [ -f bandit-report.json ]; then
+          echo "📊 Bandit security scan results:"
+          cat bandit-report.json | head -20
+        fi

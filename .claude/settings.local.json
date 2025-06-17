@@ -22,7 +22,8 @@
       "WebFetch(domain:github.com)",
       "Bash(gh pr view:*)",
       "Bash(ruff check:*)",
-      "Bash(black:*)"
+      "Bash(black:*)",
+      "Bash(gh issue create:*)"
     ],
     "deny": []
   }

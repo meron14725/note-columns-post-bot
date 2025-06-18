@@ -83,8 +83,12 @@ class DailyBatchProcessor:
             async with NoteScraper() as scraper:
                 # Phase 1: Collect article list from all categories (limited to max_articles_per_batch)
                 max_articles = config.max_articles_per_batch
-                logger.info(f"Phase 1: Collecting article list from all categories (max: {max_articles})...")
-                article_list = await scraper.collect_article_list(max_articles=max_articles)
+                logger.info(
+                    f"Phase 1: Collecting article list from all categories (max: {max_articles})..."
+                )
+                article_list = await scraper.collect_article_list(
+                    max_articles=max_articles
+                )
 
                 if not article_list:
                     logger.warning("No articles found in any category")
@@ -124,9 +128,11 @@ class DailyBatchProcessor:
 
                 # Apply max_articles_per_batch limit to new articles
                 if len(new_article_refs) > max_articles:
-                    logger.info(f"Limiting evaluation to {max_articles} articles (found {len(new_article_refs)} new articles)")
+                    logger.info(
+                        f"Limiting evaluation to {max_articles} articles (found {len(new_article_refs)} new articles)"
+                    )
                     new_article_refs = new_article_refs[:max_articles]
-                
+
                 logger.info(
                     f"Processing {len(new_article_refs)} new articles for streaming evaluation"
                 )
@@ -377,12 +383,14 @@ class DailyBatchProcessor:
                 logger.info(
                     f"High quality articles today: {eval_stats.get('high_quality_count', 0)}"
                 )
-                
+
                 # Show processing efficiency
                 max_batch = config.max_articles_per_batch
-                processed_today = eval_stats.get('total', 0)
+                processed_today = eval_stats.get("total", 0)
                 efficiency = (processed_today / max_batch) * 100 if max_batch > 0 else 0
-                logger.info(f"Batch utilization: {processed_today}/{max_batch} ({efficiency:.1f}%)")
+                logger.info(
+                    f"Batch utilization: {processed_today}/{max_batch} ({efficiency:.1f}%)"
+                )
 
             logger.info("==========================================")
 

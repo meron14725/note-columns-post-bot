@@ -254,12 +254,18 @@ config/
 ├── urls_config.json # 収集対象 URL 一覧
 ├── prompt_settings.json # AI 評価プロンプト
 ├── posting_schedule.json # X 投稿スケジュール
-└── api_keys.json # 各種 API キー（Groq API キー含む）
+├── api_keys.json # 各種 API キー（Groq API キー含む）
+└── config.py # アプリケーション設定（max_articles_per_batch含む）
+
+**バッチ処理制限設定**:
+- `MAX_ARTICLES_PER_BATCH`: 環境変数で設定可能（デフォルト: 50）
+- `config.py`の`DEFAULT_CONFIG["max_articles_per_batch"]`で制御
+- GitHub Actions実行時間とAPI制限を考慮した安全な上限値
 3.3 コスト
 
 完全無料で運用可能
 
-Groq Cloud: 無料（1 日 100 記事なら余裕）
+Groq Cloud: 無料（1 日 50 記事設定で安定運用、100 記事でも余裕）
 GitHub Actions: プライベートリポジトリでも無料枠内
 GitHub Pages: 無料
 独自ドメイン: オプション（年間約 1,000 円）
@@ -382,8 +388,10 @@ JSON ファイルのアーカイブ保存
 監視：GitHub Actions の実行結果通知
 パフォーマンス：
 
-1 日 100 記事：約 4 分で処理完了
-1 日 1000 記事：約 34 分で処理完了（無料枠内）
+**現在の制限**: 1日最大50記事の評価（max_articles_per_batch設定）
+- 1 日 50 記事：約 2-3 分で処理完了（現在の標準設定）
+- 1 日 100 記事：約 4 分で処理完了（制限解除時）
+- 1 日 1000 記事：約 34 分で処理完了（将来のカテゴリ別分割時）
 
 8. 拡張性考慮
 
@@ -392,9 +400,10 @@ JSON ファイルのアーカイブ保存
 投稿時間変更：posting_schedule.json 編集
 スケール対応：
 
-100 記事/日：現行構成で対応
-1000 記事/日：バッチ分割で対応
-5000 記事/日以上：複数 API キーで対応
+**現在**: 50 記事/日（安定運用のための制限設定）
+- 100 記事/日：max_articles_per_batch設定変更で対応
+- 1000 記事/日：カテゴリ別バッチ分割で対応（将来計画）
+- 5000 記事/日以上：複数 API キーと時間分散実行で対応
 
 9. システムの利点
 

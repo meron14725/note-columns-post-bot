@@ -173,9 +173,13 @@ class Config:
             self.urls_config = {}
             self.prompt_settings = {}
             self.posting_schedule = {}
-        
+
         # Batch processing settings
-        self.max_articles_per_batch = int(os.getenv("MAX_ARTICLES_PER_BATCH", DEFAULT_CONFIG["max_articles_per_batch"]))
+        self.max_articles_per_batch = int(
+            os.getenv(
+                "MAX_ARTICLES_PER_BATCH", DEFAULT_CONFIG["max_articles_per_batch"]
+            )
+        )
 
     @property
     def has_twitter_credentials(self) -> bool:

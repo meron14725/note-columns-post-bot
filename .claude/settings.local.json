@@ -23,7 +23,16 @@
       "Bash(gh pr view:*)",
       "Bash(ruff check:*)",
       "Bash(black:*)",
+<<<<<<< develop
+      "Bash(gh issue create:*)",
+      "Bash(gh issue edit:*)",
+      "Bash(rm:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh run view:*)",
+      "Bash(git pull:*)"
+=======
       "Bash(gh issue create:*)"
+>>>>>>> main
     ],
     "deny": []
   }

@@ -103,8 +103,13 @@ class NoteScraper:
             return False
 
     @log_execution_time
-    async def collect_article_list(self) -> list[dict[str, Any]]:
+    async def collect_article_list(
+        self, max_articles: Optional[int] = None
+    ) -> list[dict[str, Any]]:
         """Collect article list (key, urlname) from all configured URLs.
+
+        Args:
+            max_articles: Maximum number of articles to collect (optional)
 
         Returns:
             List of article metadata (key, urlname, category, etc.)
@@ -116,12 +121,27 @@ class NoteScraper:
             f"Starting article list collection from {len(collection_urls)} sources"
         )
 
+        if max_articles:
+            logger.info(f"Collection limited to {max_articles} articles maximum")
+
         for url_config in collection_urls:
             try:
-                articles = await self._collect_list_from_source(url_config)
+                # Calculate remaining articles needed if limit is set
+                remaining_articles = None
+                if max_articles:
+                    remaining_articles = max_articles - len(all_articles)
+                    if remaining_articles <= 0:
+                        logger.info(
+                            f"Reached maximum article limit of {max_articles}, stopping collection"
+                        )
+                        break
+
+                articles = await self._collect_list_from_source(
+                    url_config, max_articles=remaining_articles
+                )
                 all_articles.extend(articles)
                 logger.info(
-                    f"Collected {len(articles)} article references from {url_config['name']}"
+                    f"Collected {len(articles)} article references from {url_config['name']} (total: {len(all_articles)})"
                 )
 
                 # Delay between sources
@@ -140,19 +160,38 @@ class NoteScraper:
             unique_articles[unique_key] = article
 
         final_articles = list(unique_articles.values())
+
+        # Apply final limit if needed (in case duplicates were removed)
+        if max_articles and len(final_articles) > max_articles:
+            final_articles = final_articles[:max_articles]
+            logger.info(
+                f"Applied final limit, reduced to {len(final_articles)} articles"
+            )
+
         logger.info(f"Collected {len(final_articles)} unique article references total")
 
         return final_articles
 
     @log_execution_time
-    async def collect_articles(self) -> list[Article]:
+    async def collect_articles(
+        self, max_articles: Optional[int] = None
+    ) -> list[Article]:
         """Collect articles from all configured URLs (backward compatibility).
+
+        Args:
+            max_articles: Maximum number of articles to collect (optional, uses config default)
 
         Returns:
             List of collected articles
         """
+        # Get max articles from parameter or config
+        if max_articles is None:
+            max_articles = self.collection_settings.get(
+                "max_articles_per_collection", 100
+            )
+
         # First, collect article list
-        article_list = await self.collect_article_list()
+        article_list = await self.collect_article_list(max_articles=max_articles)
 
         # Save article references to database for deduplication
         from backend.app.models.article_reference import ArticleReference
@@ -221,12 +260,13 @@ class NoteScraper:
         return articles
 
     async def _collect_list_from_source(
-        self, url_config: dict[str, Any]
+        self, url_config: dict[str, Any], max_articles: Optional[int] = None
     ) -> list[dict[str, Any]]:
         """Collect article list from a single source (key, urlname only).
 
         Args:
             url_config: URL configuration
+            max_articles: Maximum number of articles to collect from this source
 
         Returns:
             List of article references (not full Article objects)
@@ -259,7 +299,9 @@ class NoteScraper:
 
             # Fetch article list using API
             if label_name:
-                page_articles = await self._fetch_api_article_list(label_name, category)
+                page_articles = await self._fetch_api_article_list(
+                    label_name, category, max_articles=max_articles
+                )
             else:
                 # Fallback to HTML parsing for non-interest pages
                 page_articles = await self._fetch_page_article_list(base_url, category)
@@ -270,6 +312,14 @@ class NoteScraper:
 
             # Filter recent articles
             recent_articles = self._filter_recent_article_list(page_articles)
+
+            # Apply max_articles limit if specified
+            if max_articles and len(recent_articles) > max_articles:
+                recent_articles = recent_articles[:max_articles]
+                logger.info(
+                    f"Limited collection to {len(recent_articles)} articles for {url_config['name']}"
+                )
+
             articles.extend(recent_articles)
 
             logger.info(
@@ -282,7 +332,11 @@ class NoteScraper:
         return articles
 
     async def _fetch_api_article_list(
-        self, label_name: str, category: str, max_pages: int = 5
+        self,
+        label_name: str,
+        category: str,
+        max_pages: int = 5,
+        max_articles: Optional[int] = None,
     ) -> list[dict[str, Any]]:
         """Fetch article list using note API (key, urlname only).
 
@@ -290,6 +344,7 @@ class NoteScraper:
             label_name: Label name (e.g., 'K-POP')
             category: Article category
             max_pages: Maximum number of pages to fetch
+            max_articles: Maximum number of articles to collect
 
         Returns:
             List of article references
@@ -297,6 +352,12 @@ class NoteScraper:
         articles = []
 
         for page in range(1, max_pages + 1):
+            # Check if we've reached the article limit
+            if max_articles and len(articles) >= max_articles:
+                logger.info(
+                    f"Reached max_articles limit of {max_articles}, stopping API fetch"
+                )
+                break
             try:
                 # Build API URL with proper encoding
                 encoded_label = quote(label_name, safe="")
@@ -344,17 +405,35 @@ class NoteScraper:
                 for section in sections:
                     notes = section.get("notes", [])
                     for note in notes:
+                        # Check if we've reached the limit before adding more articles
+                        if max_articles and len(articles) >= max_articles:
+                            logger.info(
+                                f"Reached max_articles limit of {max_articles} during page {page} processing"
+                            )
+                            break
+
                         article_ref = self._parse_api_note_reference(note, category)
                         if article_ref:
                             articles.append(article_ref)
+
+                    # Break out of section loop if limit reached
+                    if max_articles and len(articles) >= max_articles:
+                        break
 
                 page_ref_count = 0
                 for section in sections:
                     page_ref_count += len(section.get("notes", []))
 
                 logger.info(
-                    f"Fetched {page_ref_count} article references from page {page}"
+                    f"Fetched {page_ref_count} article references from page {page} (collected: {len(articles)})"
                 )
+
+                # Stop if we reached the article limit
+                if max_articles and len(articles) >= max_articles:
+                    logger.info(
+                        f"Stopping API fetch as max_articles limit of {max_articles} reached"
+                    )
+                    break
 
                 if is_last:
                     break
@@ -1567,8 +1646,11 @@ def collect_article_list_sync() -> list[dict[str, Any]]:
     return asyncio.run(_collect())
 
 
-def collect_articles_sync() -> list[Article]:
+def collect_articles_sync(max_articles: Optional[int] = None) -> list[Article]:
     """Collect articles synchronously.
+
+    Args:
+        max_articles: Maximum number of articles to collect
 
     Returns:
         List of collected articles
@@ -1576,7 +1658,7 @@ def collect_articles_sync() -> list[Article]:
 
     async def _collect():
         async with NoteScraper() as scraper:
-            return await scraper.collect_articles()
+            return await scraper.collect_articles(max_articles=max_articles)
 
     return asyncio.run(_collect())
 

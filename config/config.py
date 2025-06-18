@@ -136,6 +136,7 @@ def ensure_directories() -> None:
 # Configuration constants
 DEFAULT_CONFIG = {
     "max_articles_per_day": 100,
+    "max_articles_per_batch": 50,  # AI評価する記事の最大数
     "evaluation_batch_size": 10,
     "request_timeout": 30,
     "max_retries": 3,
@@ -172,6 +173,13 @@ class Config:
             self.urls_config = {}
             self.prompt_settings = {}
             self.posting_schedule = {}
+
+        # Batch processing settings
+        self.max_articles_per_batch = int(
+            os.getenv(
+                "MAX_ARTICLES_PER_BATCH", DEFAULT_CONFIG["max_articles_per_batch"]
+            )
+        )
 
     @property
     def has_twitter_credentials(self) -> bool:

@@ -81,9 +81,10 @@ class DailyBatchProcessor:
             evaluations_count = 0
 
             async with NoteScraper() as scraper:
-                # Phase 1: Collect article list from all categories
-                logger.info("Phase 1: Collecting article list from all categories...")
-                article_list = await scraper.collect_article_list()
+                # Phase 1: Collect article list from all categories (limited to max_articles_per_batch)
+                max_articles = config.max_articles_per_batch
+                logger.info(f"Phase 1: Collecting article list from all categories (max: {max_articles})...")
+                article_list = await scraper.collect_article_list(max_articles=max_articles)
 
                 if not article_list:
                     logger.warning("No articles found in any category")
@@ -121,8 +122,13 @@ class DailyBatchProcessor:
                     logger.info("All articles already exist in database")
                     return 0
 
+                # Apply max_articles_per_batch limit to new articles
+                if len(new_article_refs) > max_articles:
+                    logger.info(f"Limiting evaluation to {max_articles} articles (found {len(new_article_refs)} new articles)")
+                    new_article_refs = new_article_refs[:max_articles]
+                
                 logger.info(
-                    f"Found {len(new_article_refs)} new articles for streaming processing"
+                    f"Processing {len(new_article_refs)} new articles for streaming evaluation"
                 )
 
                 # Phase 2: Streaming processing (collect details → evaluate → save → discard)
@@ -359,6 +365,7 @@ class DailyBatchProcessor:
             eval_stats = self.evaluation_repo.get_evaluation_statistics(days=1)
 
             logger.info("=== Daily Batch Completion Statistics ===")
+            logger.info(f"Maximum articles per batch: {config.max_articles_per_batch}")
             logger.info(f"Total articles in database: {stats.get('articles_count', 0)}")
             logger.info(f"Total evaluations: {stats.get('evaluations_count', 0)}")
             logger.info(f"Articles evaluated today: {eval_stats.get('total', 0)}")
@@ -370,6 +377,12 @@ class DailyBatchProcessor:
                 logger.info(
                     f"High quality articles today: {eval_stats.get('high_quality_count', 0)}"
                 )
+                
+                # Show processing efficiency
+                max_batch = config.max_articles_per_batch
+                processed_today = eval_stats.get('total', 0)
+                efficiency = (processed_today / max_batch) * 100 if max_batch > 0 else 0
+                logger.info(f"Batch utilization: {processed_today}/{max_batch} ({efficiency:.1f}%)")
 
             logger.info("==========================================")
 
